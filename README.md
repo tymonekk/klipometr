@@ -1,7 +1,7 @@
 # Licznik klipów
 
 Panel z zarobkiem z filmów TikTok, w których pojawia się baner (ruletka skrzynek).
-Strona: https://369shoter.github.io/licznik-klipow/
+Strona: https://tymonekk.github.io/licznik-klipow/
 
 ## Jak to działa
 
