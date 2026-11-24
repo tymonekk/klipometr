@@ -1,7 +1,7 @@
 # Klipometr
 
 Panel z zarobkiem z filmów TikTok, w których pojawia się baner (ruletka skrzynek).
-Strona: https://tymonekk.github.io/licznik-klipow/
+Strona: https://tymonekk.github.io/klipometr/
 
 ## Jak to działa
 
