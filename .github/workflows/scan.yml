@@ -1,16 +1,23 @@
 name: Skanowanie banerów
 
-# Sprawdza nowe filmy (klatka co sekundę), odświeża wyświetlenia filmów z banerem i publikuje panel
-# na GitHub Pages. Harmonogram jest co 15 minut, ale GitHub uruchamia go nieregularnie (zwykle co 1-6 h). Ręcznie: zakładka Actions -> Skanowanie banerów -> Run workflow.
+# Bot sprawdza nowe filmy (klatka co sekundę), odświeża wyświetlenia filmów z banerem i publikuje panel.
+#
+# Działa w łańcuchu: po każdym przebiegu uruchamia sam siebie, a nowy przebieg najpierw czeka 10 minut
+# w środowisku "pauza" (licznik czasu GitHuba, nie zajmuje serwera). Daje to odświeżenie mniej więcej co 12 minut.
+# Harmonogram (cron) jest tylko zapasem: gdy łańcuch się urwie, najbliższy zaplanowany przebieg go wznowi.
 on:
   push:
     branches: [main]
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
       rescan:
         description: "Przeskanuj od nowa wszystkie filmy"
+        type: boolean
+        default: false
+      chain:
+        description: "Przebieg z łańcucha (najpierw 10 minut przerwy)"
         type: boolean
         default: false
 
@@ -18,15 +25,26 @@ permissions:
   contents: write
   pages: write
   id-token: write
-
-concurrency:
-  group: scan
-  cancel-in-progress: false
+  actions: write
 
 jobs:
+  pauza:
+    if: github.event_name == 'workflow_dispatch' && inputs.chain
+    runs-on: ubuntu-latest
+    environment: pauza
+    steps:
+      - run: echo "Koniec przerwy"
+
   scan:
+    needs: pauza
+    if: ${{ !cancelled() && (needs.pauza.result == 'success' || needs.pauza.result == 'skipped') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    concurrency:
+      group: scan
+      cancel-in-progress: false
+    outputs:
+      changed: ${{ steps.save.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,16 +53,18 @@ jobs:
           python-version: "3.12"
 
       - name: Narzędzia
+        if: github.event_name != 'push'
         run: |
           which ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           pip install --quiet -U yt-dlp opencv-python-headless numpy
 
-      - name: Skanuj nowe filmy
-        # przy pushu tylko publikujemy, skanowanie robi harmonogram i ręczne uruchomienie
+      - name: Skanuj nowe filmy i odśwież wyświetlenia
+        # przy pushu tylko publikujemy
         if: github.event_name != 'push'
         run: python scripts/scan.py ${{ inputs.rescan && '--rescan --budget 2100' || '' }}
 
       - name: Zapisz wyniki
+        id: save
         if: github.event_name != 'push'
         run: |
           if ! git diff --quiet -- data/ || [ -n "$(git ls-files --others -- data/)" ]; then
@@ -54,6 +74,7 @@ jobs:
             git commit -q -m "Wyniki bota"
             git pull -q --rebase origin main
             git push -q
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Złóż stronę
@@ -66,9 +87,28 @@ jobs:
         with:
           path: _site
 
+      - name: Następny przebieg łańcucha
+        if: ${{ always() && github.event_name != 'push' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # uruchamiamy następny tylko wtedy, gdy żaden inny przebieg bota nie czeka ani nie trwa
+          others=$(gh run list -R "$GITHUB_REPOSITORY" --workflow scan.yml --limit 30 \
+            --json databaseId,status,event \
+            --jq "[.[] | select(.databaseId != ${{ github.run_id }}) | select(.event != \"push\") | select(.status != \"completed\")] | length")
+          echo "Inne aktywne przebiegi: $others"
+          if [ "$others" = "0" ]; then
+            gh workflow run scan.yml -R "$GITHUB_REPOSITORY" --ref main -f chain=true
+            echo "Następny przebieg za ~10 minut"
+          fi
+
   deploy:
     needs: scan
+    if: ${{ !cancelled() && needs.scan.result == 'success' && (github.event_name == 'push' || needs.scan.outputs.changed == 'true') }}
     runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

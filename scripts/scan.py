@@ -40,6 +40,7 @@ HISTORY_KEEP_DAYS = 45
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
 SOURCE = "https://369shoter.github.io/data/tiktok.js"
+LIVE = "https://369-panel.369shoter.workers.dev/live"
 USER = "369_shoter"
 SCAN_EVERY_S = 1          # klatka co sekundę (baner trwa ~4 s, więc łapiemy go kilka razy)
 MAX_TRIES = 6             # po tylu nieudanych pobraniach przestajemy próbować (zostaje ręczne zaznaczenie)
@@ -55,11 +56,28 @@ def warn(msg):
 
 
 def load_videos():
+    """Lista filmów: pełna z data/tiktok.js strony + najświeższe z /live Workera strony (łapie nowe filmy szybciej)."""
     req = urllib.request.Request(SOURCE + "?t=%d" % time.time(), headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(req, timeout=30) as resp:
         text = resp.read().decode("utf-8")
-    data = json.loads(text[text.index("{"):text.rindex("}") + 1])
-    return data["videos"]
+    videos = json.loads(text[text.index("{"):text.rindex("}") + 1])["videos"]
+    try:
+        req = urllib.request.Request(LIVE, headers={"User-Agent": "Mozilla/5.0", "Origin": "https://369shoter.github.io"})
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            live = json.loads(resp.read().decode("utf-8")).get("videos") or []
+        known = {v["id"]: v for v in videos}
+        for lv in live:
+            vid = str(lv.get("id", ""))
+            if not vid.isdigit():
+                continue
+            if vid in known:
+                known[vid]["views"] = max(known[vid].get("views") or 0, lv.get("views") or 0)
+            else:
+                # numer filmu TikToka zawiera czas wgrania (górne 32 bity)
+                videos.append({"id": vid, "title": lv.get("title", ""), "views": lv.get("views") or 0, "t": int(vid) >> 32})
+    except Exception as exc:  # noqa: BLE001
+        warn(f"/live niedostępne: {exc}")
+    return videos
 
 
 def read_json(path, default):
