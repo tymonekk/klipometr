@@ -37,7 +37,10 @@
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+  html, body { max-width: 100%; }
+  body { overflow-x: hidden; }
+  @supports (overflow: clip) { html, body { overflow-x: clip; } }
   body {
     margin: 0; color: var(--text);
     font-family: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -135,9 +138,11 @@
   .bar:hover i, .bar:focus i { opacity: 1; background: var(--gold); }
   .bar .tip {
     position: absolute; bottom: calc(100% + 6px); left: 50%; translate: -50% 0; background: var(--tile2); border: 1px solid var(--line);
-    border-radius: 6px; padding: 4px 8px; font-size: 12px; white-space: nowrap; pointer-events: none; opacity: 0; z-index: 3;
+    border-radius: 6px; padding: 4px 8px; font-size: 12px; white-space: nowrap; pointer-events: none; display: none; z-index: 3;
   }
-  .bar:hover .tip, .bar:focus .tip { opacity: 1; }
+  .bar.l .tip { left: 0; translate: 0 0; }
+  .bar.r .tip { left: auto; right: 0; translate: 0 0; }
+  .bar:hover .tip, .bar:focus .tip { display: block; }
   .axis { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin-top: 4px; }
 
   /* lista klipów */
@@ -370,9 +375,10 @@
     const max = Math.max(1, ...buckets.map(b => b.sum));
     const chart = $("chart");
     chart.innerHTML = "";
-    for (const b of buckets) {
+    buckets.forEach((b, i) => {
       const el = document.createElement("div");
-      el.className = "bar" + (b.sum ? "" : " zero");
+      // dymki przy brzegach wyrównane do środka wykresu, żeby nie wystawały poza ekran
+      el.className = "bar" + (b.sum ? "" : " zero") + (i < n / 3 ? " l" : i >= n * 2 / 3 ? " r" : "");
       el.tabIndex = 0;
       const bar = document.createElement("i");
       bar.style.height = (b.sum / max * 100) + "%";
@@ -381,7 +387,7 @@
       tip.textContent = (step === 7 ? "tydz. od " : "") + fmtDay(b.start) + ": " + fmtUsd(b.sum) + (b.count ? " (" + b.count + ")" : "");
       el.append(tip, bar);
       chart.appendChild(el);
-    }
+    });
     $("axFrom").textContent = fmtDay(buckets[0].start);
     $("axTo").textContent = step === 7 ? fmtDay(buckets[n - 1].start) : fmtDay(new Date(to * 1000));
   }
