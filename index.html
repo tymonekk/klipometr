@@ -322,6 +322,33 @@
     .clip { grid-template-columns: 46px 1fr auto; gap: 10px; }
     .thumb { width: 46px; height: 62px; }
   }
+
+  /* komputer: dwie kolumny, po lewej podsumowanie i wypłaty, po prawej wykres i klipy */
+  /* tablet i wąskie okno: jedna kolumna, trochę szersza */
+  @media (min-width: 760px) { .wrap { max-width: 760px; } }
+  @media (min-width: 1100px) {
+    .wrap { max-width: 1240px; padding: 22px 40px 64px; }
+    header { padding: 4px 0 22px; }
+    .mark { width: 46px; height: 46px; }
+    .brand { font-size: 24px; }
+    .status { font-size: 14px; padding: 7px 12px 7px 10px; }
+    .main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+    .colA { position: sticky; top: 20px; }
+    .periods, .tabs { flex-wrap: wrap; overflow: visible; margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
+    .periods { margin-top: 0; }
+    .colB .wk { margin-top: 0; }
+    .wbars { height: 220px; }
+    .cliph { margin-top: 34px; }
+    .clip:hover { transform: translateX(2px); }
+    footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); }
+  }
+  /* duży ekran: większe liczby w ruletce */
+  @media (min-width: 1280px) {
+    .tile { min-height: 140px; padding: 16px 14px 14px; }
+    .tile .val { font-size: 22px; }
+    .tile.win .val { font-size: 36px; }
+    .stat .val { font-size: 22px; }
+  }
 </style>
 </head>
 <body>
@@ -343,6 +370,8 @@
     <button class="x" type="button" id="installClose" aria-label="Ukryj">×</button>
   </div>
 
+  <div class="main">
+  <div class="colA">
   <div class="periods" id="periods" role="group" aria-label="Filmy opublikowane w okresie"></div>
   <div class="range" id="range" hidden>
     <label>Od <input type="date" id="from"></label>
@@ -395,6 +424,8 @@
     <div class="paylist" id="payList"></div>
   </section>
 
+  </div>
+  <div class="colB">
   <section class="wk">
     <h2>Tydzień po tygodniu</h2>
     <div class="seg" id="metrics" role="group" aria-label="Co pokazuje wykres"></div>
@@ -406,7 +437,7 @@
     </div>
   </section>
 
-  <h2>Klipy</h2>
+  <h2 class="cliph">Klipy</h2>
   <div class="tabs" id="tabs" role="group" aria-label="Rodzaj klipów"></div>
   <div class="legend" id="legend">
     <span style="--c: var(--r0)">poniżej 5 tys.</span>
@@ -418,6 +449,8 @@
   </div>
   <div class="list" id="list"></div>
   <button class="more" id="more" type="button" hidden>Pokaż więcej</button>
+  </div>
+  </div>
 
   <footer>
     Bot sam ogląda każdy nowy film klatka po klatce (co sekundę) i szuka baneru. Mniej więcej co 12 minut
@@ -910,6 +943,13 @@
       if (!reduced) setTimeout(() => r.classList.add("glint"), 1250);
     }
   }
+
+  // lewa kolumna (komputer) zostaje na ekranie przy przewijaniu klipów; gdy jest wyższa niż okno,
+  // najpierw przewija się do swojego końca i dopiero wtedy się zatrzymuje
+  const colA = document.querySelector(".colA");
+  const fitSticky = () => { colA.style.top = Math.min(20, innerHeight - colA.offsetHeight - 20) + "px"; };
+  if ("ResizeObserver" in window) new ResizeObserver(fitSticky).observe(colA);
+  addEventListener("resize", fitSticky);
 
   // ---------- grafika z wynikiem (obrazek 1080×1920 na story) ----------
   const RC = ["#b0c3d9", "#4b69ff", "#8847ff", "#d32ce6", "#eb4b4b", "#e4ae39"];
