@@ -1,19 +1,27 @@
-"""Wykrywanie baneru (ruletka skrzynek z niebieską albo złotą ramką) na pojedynczej klatce.
+"""Wykrywanie baneru (ruletka skrzynek) na pojedynczej klatce.
 
-Baner to szeroki prostokąt z grubą, nasyconą ramką (niebieską, a przy wygranej złotą),
-zajmujący większość szerokości filmu. Szukamy więc w klatce obrysu w tym kolorze, który:
-  - jest szeroki (>= MIN_WIDTH szerokości klatki),
-  - ma proporcje mniej więcej 2:1 do 4,5:1,
-  - jest "pusty w środku": kolor leży głównie na krawędziach prostokąta, a nie wypełnia go.
+Baner ma zawsze ten sam kształt, zmienia się tylko jego wielkość i miejsce:
+  - prostokąt o proporcjach ~2,58:1 z cienką ramką (niebieską, a przy wygranej złotą),
+  - na środku górnej i dolnej krawędzi trójkąty skierowane do środka,
+  - nieprzezroczysty, ciemny środek (kafelki z broniami).
+
+Dla każdej wielkości porównujemy klatkę z wzorcem tego kształtu (cv2.matchTemplate):
+  plus  = jaka część ramki i trójkątów ma kolor ramki (powinno być ~1),
+  minus = jaka część wnętrza ma kolor ramki (powinno być ~0).
+Dzięki "minus" nie myli nas tło w podobnym kolorze (żółte ściany na Dust2), a dzięki temu,
+że patrzymy tylko na ramkę i wnętrze, nie przeszkadza niebieskie niebo dookoła baneru.
 """
 import cv2
 import numpy as np
 
-WORK_WIDTH = 360          # klatki skalujemy do tej szerokości
-MIN_WIDTH = 0.55          # minimalna szerokość baneru jako część szerokości klatki
-MIN_ASPECT, MAX_ASPECT = 1.9, 4.8
-MIN_EDGE = 0.55           # jaka część każdej z 4 krawędzi musi mieć kolor ramki
-MAX_FILL = 0.45           # ile najwyżej wnętrza może mieć kolor ramki
+WORK_WIDTH = 360            # klatki skalujemy do tej szerokości
+ASPECT = 2.58               # szerokość / wysokość baneru
+MIN_W, MAX_W = 0.45, 0.97   # szerokość baneru jako część szerokości klatki
+SCALE_STEP = 1.03           # kolejne sprawdzane szerokości różnią się o 3%
+MIN_SCORE = 0.80            # plus - minus (prawdziwe banery: >= 0.9, inne rzeczy: <= 0.81)
+MIN_PLUS = 0.85
+MAX_MINUS = 0.15
+MAX_INNER_V = 110           # mediana jasności wnętrza (baner: 30-60, ściany mapy itp.: 85-255)
 
 # zakresy HSV w OpenCV (H: 0-179)
 COLORS = {
@@ -21,20 +29,48 @@ COLORS = {
     "zloty": ((14, 110, 140), (34, 255, 255)),
 }
 
+_templates = {}
 
-def _edge_cover(mask, x, y, w, h, t):
-    """Udział pikseli ramki na każdej z czterech krawędzi prostokąta (pomija narożniki)."""
-    cx0, cx1 = x + w // 8, x + w - w // 8
-    cy0, cy1 = y + h // 6, y + h - h // 6
 
-    def frac(region):
-        return float(region.mean()) / 255.0 if region.size else 0.0
+def _template(w):
+    """Wzorce (plus, minus) dla baneru szerokości w pikseli."""
+    if w in _templates:
+        return _templates[w]
+    h = round(w / ASPECT)
+    bt = max(2, round(w * 0.015))           # grubość ramki
+    rc = max(3, round(w * 0.05))            # pomijany narożnik (zaokrąglony)
+    plus = np.zeros((h, w), np.float32)
+    plus[0:bt, rc:w - rc] = 1
+    plus[h - bt:h, rc:w - rc] = 1
+    plus[rc:h - rc, 0:bt] = 1
+    plus[rc:h - rc, w - bt:w] = 1
+    # trójkąty: podstawa ~8% szerokości, wysokość ~17% wysokości (licząc od ramki)
+    tb, th = w * 0.08, h * 0.17
+    cx = (w - 1) / 2
+    tri = np.zeros((h, w), np.uint8)
+    top = np.array([[cx - tb / 2, bt], [cx + tb / 2, bt], [cx, bt + th]], np.int32)
+    bot = np.array([[cx - tb / 2, h - 1 - bt], [cx + tb / 2, h - 1 - bt], [cx, h - 1 - bt - th]], np.int32)
+    cv2.fillPoly(tri, [top, bot], 1)
+    core = cv2.erode(tri, np.ones((3, 3), np.uint8))   # bez brzegów, które bywają rozmyte
+    plus[core > 0] = 1
+    # wnętrze (bez trójkątów z zapasem i bez pasa tuż przy ramce)
+    m = bt + max(2, round(w * 0.012))
+    minus = np.zeros((h, w), np.float32)
+    minus[m:h - m, m:w - m] = 1
+    minus[cv2.dilate(tri, np.ones((7, 7), np.uint8)) > 0] = 0
+    plus /= plus.sum()
+    minus /= minus.sum()
+    _templates[w] = (plus, minus)
+    return plus, minus
 
-    top = frac(mask[y:y + t, cx0:cx1].max(axis=0, keepdims=True))
-    bottom = frac(mask[y + h - t:y + h, cx0:cx1].max(axis=0, keepdims=True))
-    left = frac(mask[cy0:cy1, x:x + t].max(axis=1, keepdims=True))
-    right = frac(mask[cy0:cy1, x + w - t:x + w].max(axis=1, keepdims=True))
-    return min(top, bottom, left, right)
+
+def _widths(W):
+    w = MIN_W * W
+    out = []
+    while w <= MAX_W * W:
+        out.append(int(round(w)))
+        w *= SCALE_STEP
+    return out
 
 
 def find_banner(frame_bgr):
@@ -47,25 +83,31 @@ def find_banner(frame_bgr):
     best = None
     for name, (lo, hi) in COLORS.items():
         mask = cv2.inRange(hsv, np.array(lo), np.array(hi))
-        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        for c in contours:
-            x, y, w, h = cv2.boundingRect(c)
-            if w < MIN_WIDTH * W or h < 8:
+        # ramka ma ~5 px przy pełnej szerokości; jeśli w klatce prawie nie ma tego koloru, szkoda czasu
+        if cv2.countNonZero(mask) < MIN_W * W * 4 * 2:
+            continue
+        m_in = (mask > 0).astype(np.float32)
+        m_plus = cv2.dilate(m_in, np.ones((3, 3), np.uint8))   # tolerancja na skalę i rozmycie
+        for w in _widths(W):
+            plus, minus = _template(w)
+            ph, pw = plus.shape
+            if ph > H or pw > W:
                 continue
-            aspect = w / h
-            if not (MIN_ASPECT <= aspect <= MAX_ASPECT):
+            sp = cv2.matchTemplate(m_plus, plus, cv2.TM_CCORR)
+            sm = cv2.matchTemplate(m_in, minus, cv2.TM_CCORR)
+            score = sp - sm
+            _, val, _, (x, y) = cv2.minMaxLoc(score)
+            if val < MIN_SCORE:
                 continue
-            t = max(3, round(w * 0.025))
-            edge = _edge_cover(mask, x, y, w, h, t)
-            if edge < MIN_EDGE:
+            p, n = float(sp[y, x]), float(sm[y, x])
+            if p < MIN_PLUS or n > MAX_MINUS:
                 continue
-            inner = mask[y + 2 * t:y + h - 2 * t, x + 2 * t:x + w - 2 * t]
-            fill = float(inner.mean()) / 255.0 if inner.size else 1.0
-            if fill > MAX_FILL:
+            # wnętrze baneru jest ciemne (kafelki z broniami na ciemnym tle)
+            inner = hsv[y + ph // 5:y + ph - ph // 5, x + pw // 10:x + pw - pw // 10, 2]
+            dark = float(np.median(inner))
+            if dark > MAX_INNER_V:
                 continue
-            score = edge * (1 - fill)
-            if best is None or score > best["score"]:
-                best = {"color": name, "score": round(score, 3), "edge": round(edge, 3),
-                        "fill": round(fill, 3), "box": [x, y, w, h]}
+            if best is None or val > best["score"]:
+                best = {"color": name, "score": round(float(val), 3), "plus": round(p, 3),
+                        "minus": round(n, 3), "v": round(dark), "box": [int(x), int(y), pw, ph]}
     return best

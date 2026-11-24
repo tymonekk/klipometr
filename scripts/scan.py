@@ -18,6 +18,7 @@ import glob
 import json
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -32,6 +33,12 @@ from detect import find_banner  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 BANNERS = ROOT / "data" / "banners.json"
+VIEWS = ROOT / "data" / "views.json"
+OVERRIDES = ROOT / "data" / "overrides.json"
+HISTORY_GAP_S = 50 * 60   # nowy punkt historii wyświetleń najwyżej co ~godzinę
+HISTORY_KEEP_DAYS = 45
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
 SOURCE = "https://369shoter.github.io/data/tiktok.js"
 USER = "369_shoter"
 SCAN_EVERY_S = 1          # klatka co sekundę (baner trwa ~4 s, więc łapiemy go kilka razy)
@@ -53,6 +60,62 @@ def load_videos():
         text = resp.read().decode("utf-8")
     data = json.loads(text[text.index("{"):text.rindex("}") + 1])
     return data["videos"]
+
+
+def read_json(path, default):
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return default
+
+
+def page_views(video_id):
+    """Świeża liczba wyświetleń ze strony filmu na TikToku (dokładna do ~100 przy dużych liczbach)."""
+    req = urllib.request.Request(f"https://www.tiktok.com/@{USER}/video/{video_id}",
+                                 headers={"User-Agent": UA, "Accept-Language": "pl,en;q=0.8"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        html = resp.read().decode("utf-8", "replace")
+    m = re.search(r'<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>(.*?)</script>', html, re.S)
+    if not m:
+        raise RuntimeError("brak danych na stronie filmu")
+    item = json.loads(m.group(1))["__DEFAULT_SCOPE__"]["webapp.video-detail"]["itemInfo"]["itemStruct"]
+    stats = item.get("statsV2") or item.get("stats") or {}
+    return int(stats["playCount"]), int(item.get("createTime") or 0)
+
+
+def refresh_views(banners):
+    """Odświeża wyświetlenia filmów z banerem (także zaznaczonych ręcznie) i dopisuje historię."""
+    over = read_json(OVERRIDES, {})
+    ids = {k for k, e in banners.items() if e.get("banner")} | {str(i) for i in over.get("baner", [])}
+    ids -= {str(i) for i in over.get("bez_baneru", [])}
+    data = read_json(VIEWS, {"at": 0, "v": {}, "h": {}})
+    now = int(time.time())
+    ok = 0
+    for vid in sorted(ids, reverse=True):
+        try:
+            views, created = page_views(vid)
+        except Exception as exc:  # noqa: BLE001
+            warn(f"wyświetlenia {vid}: {exc}")
+            continue
+        old = data["v"].get(vid, 0)
+        views = max(views, old)                      # wyświetlenia nie maleją (TikTok bywa niespójny)
+        data["v"][vid] = views
+        hist = data["h"].setdefault(vid, [])
+        if not hist or (now - hist[-1][0] >= HISTORY_GAP_S and views != hist[-1][1]):
+            hist.append([now, views])
+        if vid in banners:
+            banners[vid]["views"] = views
+            if created and not banners[vid].get("t"):
+                banners[vid]["t"] = created
+        ok += 1
+        time.sleep(0.3)
+    cutoff = now - HISTORY_KEEP_DAYS * 86400
+    for vid, hist in data["h"].items():
+        data["h"][vid] = [p for p in hist if p[0] >= cutoff] or hist[-1:]
+    if ok:
+        data["at"] = now
+    VIEWS.write_text(json.dumps(data, separators=(",", ":")) + "\n", encoding="utf-8")
+    log(f"Odświeżono wyświetlenia {ok} z {len(ids)} filmów z banerem")
 
 
 def load_banners():
@@ -123,6 +186,7 @@ def main():
     ap.add_argument("--id", action="append", default=[], help="skanuj tylko te filmy")
     ap.add_argument("--rescan", action="store_true", help="skanuj ponownie także już sprawdzone")
     ap.add_argument("--budget", type=int, default=TIME_BUDGET_S, help="limit czasu przebiegu w sekundach")
+    ap.add_argument("--no-views", action="store_true", help="nie odświeżaj wyświetleń filmów z banerem")
     args = ap.parse_args()
 
     try:
@@ -141,7 +205,7 @@ def main():
             if v.get("t"):
                 e["t"] = v["t"]
             if v.get("views") is not None:
-                e["views"] = v["views"]
+                e["views"] = max(v["views"], e.get("views") or 0)
 
     todo = []
     for v in videos:
@@ -164,22 +228,28 @@ def main():
             log("Koniec czasu na ten przebieg, reszta następnym razem.")
             break
         vid = v["id"]
-        base = {"title": v.get("title", ""), "views": v.get("views"), "t": v.get("t")}
+        prev = banners.get(vid, {})
+        base = {"title": v.get("title", ""), "views": max(v.get("views") or 0, prev.get("views") or 0), "t": v.get("t")}
         try:
             entry = scan_video(vid)
             entry.update(base)
             banners[vid] = entry
             log(f"{vid}  {'BANER' if entry['banner'] else 'brak'}  ({entry['frames']} klatek)  {base['title'][:50]}")
         except Exception as exc:  # noqa: BLE001
-            prev = banners.get(vid, {})
-            tries = prev.get("tries", 0) + 1
-            banners[vid] = {**base, "error": str(exc)[:200], "tries": tries}
-            warn(f"{vid}: {exc} (próba {tries})")
+            if "banner" in prev:   # ponowny skan się nie udał: zostaje poprzedni wynik
+                warn(f"{vid}: {exc} (zostaje poprzedni wynik)")
+            else:
+                tries = prev.get("tries", 0) + 1
+                banners[vid] = {**base, "error": str(exc)[:200], "tries": tries}
+                warn(f"{vid}: {exc} (próba {tries})")
         done += 1
         if done % 5 == 0:
             save_banners(banners)
     save_banners(banners)
     log(f"Gotowe: sprawdzono {done}. Z banerem łącznie: {sum(1 for e in banners.values() if e.get('banner'))}")
+    if not args.no_views:
+        refresh_views(banners)
+        save_banners(banners)
     return 0
 
 

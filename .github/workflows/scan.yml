@@ -1,13 +1,18 @@
 name: Skanowanie banerów
 
-# Co 30 minut: sprawdza nowe filmy (klatka co sekundę), zapisuje wynik do data/banners.json
-# i publikuje panel na GitHub Pages. Ręcznie: zakładka Actions -> Skanowanie banerów -> Run workflow.
+# Sprawdza nowe filmy (klatka co sekundę), odświeża wyświetlenia filmów z banerem i publikuje panel
+# na GitHub Pages. Harmonogram jest co 15 minut, ale GitHub uruchamia go nieregularnie (zwykle co 1-6 h). Ręcznie: zakładka Actions -> Skanowanie banerów -> Run workflow.
 on:
   push:
     branches: [main]
   schedule:
-    - cron: "7,37 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
+    inputs:
+      rescan:
+        description: "Przeskanuj od nowa wszystkie filmy"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -21,7 +26,7 @@ concurrency:
 jobs:
   scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -37,16 +42,16 @@ jobs:
       - name: Skanuj nowe filmy
         # przy pushu tylko publikujemy, skanowanie robi harmonogram i ręczne uruchomienie
         if: github.event_name != 'push'
-        run: python scripts/scan.py
+        run: python scripts/scan.py ${{ inputs.rescan && '--rescan --budget 2100' || '' }}
 
       - name: Zapisz wyniki
         if: github.event_name != 'push'
         run: |
-          if ! git diff --quiet -- data/banners.json; then
+          if ! git diff --quiet -- data/ || [ -n "$(git ls-files --others -- data/)" ]; then
             git config user.name "licznik-bot"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/banners.json
-            git commit -q -m "Wyniki skanowania"
+            git add data/
+            git commit -q -m "Wyniki bota"
             git pull -q --rebase origin main
             git push -q
           fi
