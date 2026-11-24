@@ -117,6 +117,13 @@
   @media (prefers-reduced-motion: reduce) { .spin .track { animation: none; } .status.loading .dot { animation: none; } }
 
   .rule { color: var(--muted); font-size: 14px; margin: 12px 2px 0; }
+  .cmp { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 2px 0; font-size: 15px; color: var(--muted); }
+  .cmp[hidden] { display: none; }
+  .delta { font-weight: 600; padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,.06); color: var(--text); white-space: nowrap; }
+  .delta.up { color: var(--ok); background: rgba(95,211,141,.12); }
+  .delta.down { color: #ff8a8a; background: rgba(235,75,75,.12); }
+  .stat .sub .up { color: var(--ok); }
+  .stat .sub .down { color: #ff8a8a; }
   .rule b { color: var(--text); font-weight: 600; }
 
   /* liczby pod ruletką */
@@ -132,10 +139,21 @@
 
   /* wykres */
   .chart { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding: 0 2px; border-bottom: 1px solid var(--line); }
-  .bar { flex: 1; min-width: 3px; position: relative; display: flex; align-items: flex-end; height: 100%; }
-  .bar i { display: block; width: 100%; border-radius: 3px 3px 0 0; background: var(--frame); opacity: .85; min-height: 1px; }
-  .bar.zero i { background: var(--line); }
-  .bar:hover i, .bar:focus i { opacity: 1; background: var(--gold); }
+  .bar { flex: 1; min-width: 3px; position: relative; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+  .bar i { display: block; width: 100%; background: var(--frame); opacity: .9; }
+  .bar i.rest { background: #4a5878; }
+  .bar i:first-of-type { border-radius: 3px 3px 0 0; }
+  .bar.zero::after { content: ""; display: block; height: 1px; background: var(--line); }
+  .bar:hover i, .bar:focus i { opacity: 1; filter: brightness(1.25); }
+  .chart-head { display: grid; gap: 2px; margin: 30px 0 10px; }
+  .chart-head h2 { margin: 0; }
+  .chart-total { color: var(--muted); font-size: 14px; }
+  .chart-total .delta { font-size: 13px; padding: 1px 6px; }
+  .chart-total b { color: var(--text); font-weight: 600; }
+  .metrics { display: flex; gap: 6px; margin: 0 0 12px; }
+  .ckey { display: flex; gap: 14px; color: var(--muted); font-size: 12px; margin-top: 8px; }
+  .ckey[hidden] { display: none; }
+  .ckey span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; background: var(--c); }
   .bar .tip {
     position: absolute; bottom: calc(100% + 6px); left: 50%; translate: -50% 0; background: var(--tile2); border: 1px solid var(--line);
     border-radius: 6px; padding: 4px 8px; font-size: 12px; white-space: nowrap; pointer-events: none; display: none; z-index: 3;
@@ -213,6 +231,7 @@
       <div class="tile side" style="--rc: var(--r1)"><div class="lab">W złotówkach</div><div class="val num" id="pln">–</div></div>
     </div>
   </div>
+  <div class="cmp" id="cmp" hidden><span class="delta num" id="cmpDelta"></span><span id="cmpText"></span></div>
   <p class="rule"><b>0,70 $ za 1000 wyświetleń</b> za każdy film z banerem, który ma co najmniej 5000 wyświetleń.</p>
 
   <div class="stats">
@@ -223,9 +242,17 @@
   </div>
   <div class="error" id="error" hidden></div>
 
-  <h2>Zarobek według dnia publikacji</h2>
+  <div class="chart-head">
+    <h2 id="chartTitle">Według dnia publikacji</h2>
+    <div class="chart-total num" id="chartTotal"></div>
+  </div>
+  <div class="metrics" id="metrics" role="group" aria-label="Co pokazuje wykres"></div>
   <div class="chart" id="chart"></div>
   <div class="axis"><span id="axFrom"></span><span id="axTo"></span></div>
+  <div class="ckey" id="ckey">
+    <span style="--c: var(--frame)">z banerem</span>
+    <span style="--c: #4a5878">pozostałe</span>
+  </div>
 
   <h2>Klipy</h2>
   <div class="tabs" id="tabs" role="group" aria-label="Rodzaj klipów"></div>
@@ -276,6 +303,8 @@
     get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },
   };
+  // polska odmiana: 1 film, 2-4 filmy (ale 12-14 filmów), 5+ filmów
+  const filmy = (n) => n === 1 ? "film" : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? "filmy" : "filmów";
   const earn = (views) => views >= MIN_VIEWS ? Math.round(views / 1000 * RATE_PER_1000 * 100) / 100 : 0;
   const rarity = (views) => views >= 100000 ? 5 : views >= 50000 ? 4 : views >= 25000 ? 3 : views >= 10000 ? 2 : views >= MIN_VIEWS ? 1 : 0;
 
@@ -320,6 +349,45 @@
   let firstPaint = true;
 
   const cur = () => periods.find(p => p.id === period);
+
+  // poprzedni okres do porównania (tej samej długości, tuż przed wybranym)
+  function prevRange(p) {
+    const nowS = Date.now() / 1000;
+    const end = Math.min(p.to, nowS);
+    if (p.id === "all") return null;
+    if (p.id === "d1") return { from: p.from - 86400, to: nowS - 86400, label: "wczoraj o tej porze" };
+    if (p.id === "m0") {
+      const a = monthStart(now.getFullYear(), now.getMonth() - 1);
+      return { from: a, to: a + (nowS - p.from), label: monthName(now.getFullYear(), now.getMonth() - 1) + " do " + now.getDate() + "." };
+    }
+    if (p.id === "m1") {
+      return { from: monthStart(now.getFullYear(), now.getMonth() - 2), to: p.from, label: monthName(now.getFullYear(), now.getMonth() - 2) };
+    }
+    const len = end - p.from;
+    const days = Math.round(len / 86400);
+    return { from: p.from - len, to: p.from, label: days === 1 ? "poprzedni dzień" : "poprzednie " + days + " dni" };
+  }
+
+  function statsFor(from, to) {
+    const vids = state.videos.filter(v => (v.t || 0) >= from && (v.t || 0) < to);
+    const withBanner = vids.filter(v => v.banner === true);
+    const paid = withBanner.filter(v => v.views >= MIN_VIEWS);
+    return {
+      vids, withBanner, paid,
+      usd: paid.reduce((s, v) => s + earn(v.views), 0),
+      paidViews: paid.reduce((s, v) => s + v.views, 0),
+      views: vids.reduce((s, v) => s + (v.views || 0), 0),
+    };
+  }
+
+  // "+23,40 $ (+27%)" i klasa up/down
+  function delta(nowV, prevV, fmtFn) {
+    const d = nowV - prevV;
+    if (Math.abs(d) < 0.005) return { text: "bez zmian", cls: "" };
+    const sign = d > 0 ? "+" : d < 0 ? "−" : "±";
+    const pct = prevV > 0 ? " (" + sign + Math.round(Math.abs(d) / prevV * 100) + "%)" : "";
+    return { text: sign + fmtFn(Math.abs(d)) + pct, cls: d > 0 ? "up" : d < 0 ? "down" : "" };
+  }
   const inPeriod = (v) => { const p = cur(); const t = v.t || 0; return t >= p.from && t < p.to; };
 
   // ---------- przyrost z historii wyświetleń ----------
@@ -358,38 +426,83 @@
     }
   }
 
+  const METRICS = [
+    { id: "earn", label: "Zarobek" },
+    { id: "views", label: "Wyświetlenia" },
+    { id: "count", label: "Filmy" },
+  ];
+  let metric = store.get("metric", "earn");
+  if (!METRICS.some(m => m.id === metric)) metric = "earn";
+
   function renderChart(vids) {
+    chips($("metrics"), METRICS, metric, (id) => { metric = id; store.set("metric", id); render(); });
     const p = cur();
     const banner = vids.filter(v => v.banner === true);
+    const base = metric === "earn" ? banner : vids;          // od kiedy rysować przy "Wszystko"
     let from = p.from, to = Math.min(p.to, Date.now() / 1000);
-    if (!isFinite(from) || from === 0) from = banner.length ? Math.min(...banner.map(v => v.t || to)) : to - 7 * 86400;
+    if (!isFinite(from) || from === 0) from = base.length ? Math.min(...base.map(v => v.t || to)) : to - 7 * 86400;
     const d0 = new Date(from * 1000); d0.setHours(0, 0, 0, 0);
     const days = Math.max(1, Math.ceil((to - d0.getTime() / 1000) / 86400));
     const step = days > 45 ? 7 : 1;                 // długie okresy po tygodniach
     const n = Math.ceil(days / step);
-    const buckets = Array.from({ length: n }, (_, i) => ({ start: new Date(d0.getTime() + i * step * 86400e3), sum: 0, count: 0 }));
-    for (const v of banner) {
+    const buckets = Array.from({ length: n }, (_, i) => ({ start: new Date(d0.getTime() + i * step * 86400e3), b: 0, rest: 0, nb: 0, nall: 0 }));
+    for (const v of vids) {
       const i = Math.floor(((v.t || 0) * 1000 - d0.getTime()) / (step * 86400e3));
-      if (i >= 0 && i < n) { buckets[i].sum += earn(v.views); buckets[i].count++; }
+      if (i < 0 || i >= n) continue;
+      const bk = buckets[i];
+      const isB = v.banner === true;
+      const val = metric === "earn" ? (isB ? earn(v.views) : 0) : metric === "views" ? (v.views || 0) : 1;
+      if (isB) bk.b += val; else bk.rest += val;
+      bk.nall++; if (isB) bk.nb++;
     }
-    const max = Math.max(1, ...buckets.map(b => b.sum));
+    if (metric === "earn") buckets.forEach(b => { b.rest = 0; });
+    const fmtVal = (x) => metric === "earn" ? fmtUsd(x) : fmtInt(x);
+    const max = Math.max(1, ...buckets.map(b => b.b + b.rest));
     const chart = $("chart");
     chart.innerHTML = "";
     buckets.forEach((b, i) => {
       const el = document.createElement("div");
+      const total = b.b + b.rest;
       // dymki przy brzegach wyrównane do środka wykresu, żeby nie wystawały poza ekran
-      el.className = "bar" + (b.sum ? "" : " zero") + (i < n / 3 ? " l" : i >= n * 2 / 3 ? " r" : "");
+      el.className = "bar" + (total ? "" : " zero") + (i < n / 3 ? " l" : i >= n * 2 / 3 ? " r" : "");
       el.tabIndex = 0;
-      const bar = document.createElement("i");
-      bar.style.height = (b.sum / max * 100) + "%";
       const tip = document.createElement("span");
       tip.className = "tip num";
-      tip.textContent = (step === 7 ? "tydz. od " : "") + fmtDay(b.start) + ": " + fmtUsd(b.sum) + (b.count ? " (" + b.count + ")" : "");
-      el.append(tip, bar);
+      const day = (step === 7 ? "tydz. od " : "") + fmtDay(b.start) + ": ";
+      tip.textContent = metric === "earn"
+        ? day + fmtUsd(b.b) + (b.nb ? " (" + b.nb + " z banerem)" : "")
+        : metric === "views"
+          ? day + fmtInt(total) + " wyśw." + (b.b ? ", z banerem " + fmtInt(b.b) : "")
+          : day + total + " " + filmy(total) + (b.nb ? ", z banerem " + b.nb : "");
+      el.appendChild(tip);
+      if (b.rest) { const r = document.createElement("i"); r.className = "rest"; r.style.height = (b.rest / max * 100) + "%"; el.appendChild(r); }
+      if (b.b) { const g = document.createElement("i"); g.style.height = (b.b / max * 100) + "%"; el.appendChild(g); }
       chart.appendChild(el);
     });
     $("axFrom").textContent = fmtDay(buckets[0].start);
     $("axTo").textContent = step === 7 ? fmtDay(buckets[n - 1].start) : fmtDay(new Date(to * 1000));
+    $("ckey").hidden = metric === "earn";
+
+    const sumB = buckets.reduce((a, b) => a + b.b, 0), sumAll = buckets.reduce((a, b) => a + b.b + b.rest, 0);
+    $("chartTitle").textContent = { earn: "Zarobek", views: "Wyświetlenia", count: "Filmy" }[metric] + (step === 7 ? " na tydzień" : " na dzień");
+    $("chartTotal").innerHTML = "";
+    const tot = document.createElement("span");
+    tot.innerHTML = "razem <b></b>";
+    tot.querySelector("b").textContent = metric === "earn" ? fmtUsd(sumB) : fmtVal(sumAll) + (metric === "count" ? ", z banerem " + sumB : "");
+    $("chartTotal").appendChild(tot);
+    const pr = prevRange(p);
+    if (pr) {
+      const ps = statsFor(pr.from, pr.to);
+      const nowV = metric === "earn" ? sumB : sumAll;
+      const prevV = metric === "earn" ? ps.usd : metric === "views" ? ps.views : ps.vids.length;
+      const d = delta(nowV, prevV, metric === "earn" ? fmtUsd : fmtInt);
+      const sp = document.createElement("span");
+      sp.className = "delta num " + d.cls;
+      sp.style.marginLeft = "6px";
+      sp.title = "względem: " + pr.label;
+      sp.textContent = d.text;
+      $("chartTotal").appendChild(sp);
+    }
   }
 
   function clipRow(v) {
@@ -471,10 +584,30 @@
       ? "historia od " + (since < Infinity ? new Date(since * 1000).toLocaleDateString("pl-PL", { day: "numeric", month: "numeric" }) : "dziś") + ", będzie dokładniej"
       : (state.rate ? "≈ " + fmtPln(g7.sum * state.rate) : " ");
     $("paid").textContent = loaded ? paid.length + " z " + withBanner.length : "–";
-    $("paidSub").textContent = loaded ? "z banerem w tym okresie" : " ";
     $("views").textContent = loaded ? fmtInt(paidViews) : "–";
-    const best = paid.slice().sort((a, b) => b.views - a.views)[0];
-    $("viewsSub").textContent = best ? "najlepszy: " + fmtInt(best.views) : " ";
+    const pr = loaded ? prevRange(p) : null;
+    if (pr) {
+      const ps = statsFor(pr.from, pr.to);
+      const dz = delta(usd, ps.usd, fmtUsd);
+      $("cmp").hidden = false;
+      $("cmpDelta").className = "delta num " + dz.cls;
+      $("cmpDelta").textContent = dz.text;
+      $("cmpText").textContent = "względem: " + pr.label + " (" + fmtUsd(ps.usd) + ")";
+      const sub = (el, text, d) => {
+        el.textContent = text + " ";
+        const sp = document.createElement("span");
+        sp.className = d.cls;
+        sp.textContent = d.text;
+        el.appendChild(sp);
+      };
+      sub($("paidSub"), "wcześniej " + ps.paid.length + " z " + ps.withBanner.length, delta(paid.length, ps.paid.length, (x) => String(x)));
+      sub($("viewsSub"), "wcześniej " + fmtInt(ps.paidViews), delta(paidViews, ps.paidViews, fmtInt));
+    } else {
+      $("cmp").hidden = true;
+      $("paidSub").textContent = loaded ? "z banerem w tym okresie" : " ";
+      const best = paid.slice().sort((a, b) => b.views - a.views)[0];
+      $("viewsSub").textContent = best ? "najlepszy: " + fmtInt(best.views) : " ";
+    }
     $("rate").textContent = state.rate ? state.rate.toLocaleString("pl-PL", { minimumFractionDigits: 4 }) + " zł" : "–";
     $("rateSub").textContent = state.rateDate ? "za 1 $, " + state.rateDate.split("-").reverse().slice(0, 2).join(".") : " ";
 
