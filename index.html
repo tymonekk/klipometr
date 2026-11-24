@@ -55,7 +55,12 @@
   .num { font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
   .wrap { max-width: 640px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 56px; }
   button, input { font: inherit; color: inherit; }
+  /* bez niebieskiego prostokąta po dotknięciu na telefonie; obwódka tylko przy nawigacji klawiaturą */
+  * { -webkit-tap-highlight-color: transparent; }
+  button, a { -webkit-touch-callout: none; touch-action: manipulation; }
+  :focus { outline: none; }
   :focus-visible { outline: 2px solid var(--frame); outline-offset: 2px; border-radius: 6px; }
+  @media (hover: none) { :focus-visible { outline: none; } }
 
   /* nagłówek */
   header { display: flex; align-items: center; gap: 12px; padding: 6px 0 14px; }
