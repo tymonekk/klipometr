@@ -114,7 +114,36 @@
   .gain .val { color: var(--ok); }
   .spin .track { animation: spin 1.5s cubic-bezier(.12,.75,.2,1) both; }
   @keyframes spin { from { transform: translateX(-140%); filter: blur(3px); } 70% { filter: blur(0); } to { transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .spin .track { animation: none; } .status.loading .dot { animation: none; } }
+  /* jeden błysk na wygranej kafelce, gdy ruletka się zatrzyma */
+  .tile.win { overflow: hidden; }
+  .tile.win::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; transform: translateX(-130%);
+    background: linear-gradient(105deg, transparent 30%, rgba(255,228,160,.38) 50%, transparent 70%);
+  }
+  .roulette.glint .tile.win::before { animation: glint 1s cubic-bezier(.3,.6,.2,1) 1; }
+  @keyframes glint { to { transform: translateX(130%); } }
+  .roulette.glint .tile.win { animation: winpop .5s cubic-bezier(.2,.9,.3,1.3) 1; }
+  @keyframes winpop { 40% { transform: scale(1.04); } }
+
+  /* kliknięcia */
+  .chip, .seg button, .status, .more { transition: transform .12s ease, background-color .2s, color .2s, border-color .2s; }
+  .chip:active, .status:active, .more:active { transform: scale(.96); }
+  .clip { transition: background-color .2s, transform .12s ease; }
+  .clip:active { transform: scale(.985); }
+
+  /* lista: wjazd po kolei, paski do 5000 się wypełniają */
+  .clip.in { animation: rise .45s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+  .prog i { transform-origin: left center; animation: fill .9s cubic-bezier(.2,.8,.2,1) .25s both; }
+  @keyframes fill { from { transform: scaleX(0); } }
+
+  /* zmiana porównania */
+  .delta.pop { animation: pop .35s cubic-bezier(.2,.9,.3,1.4) 1; }
+  @keyframes pop { from { transform: scale(.8); opacity: .3; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
 
   .rule { color: var(--muted); font-size: 14px; margin: 12px 2px 0; }
   .cmp { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 2px 0; font-size: 15px; color: var(--muted); }
@@ -141,8 +170,14 @@
   .wk { margin-top: 30px; }
   .wk h2 { margin: 0 0 12px; }
   .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--line); }
-  .seg button { border: 0; background: transparent; color: var(--muted); font-weight: 600; font-size: 15px; padding: 10px 6px; border-radius: 7px; cursor: pointer; }
-  .seg button[aria-pressed="true"] { background: var(--text); color: #141a26; }
+  .seg { position: relative; }
+  .seg .ind {
+    position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 16px) / 3); border-radius: 7px;
+    background: var(--text); transition: transform .38s cubic-bezier(.3,.75,.2,1); z-index: 0;
+  }
+  .seg button { position: relative; z-index: 1; border: 0; background: transparent; color: var(--muted); font-weight: 600; font-size: 15px; padding: 10px 6px; border-radius: 7px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { color: #141a26; }
+  .seg button:active { transform: scale(.96); }
   .wbox { margin-top: 10px; padding: 16px 14px 12px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); }
   .whead { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; min-height: 48px; }
   .whead .wdate { color: var(--muted); font-size: 15px; }
@@ -152,7 +187,10 @@
   .wbars { display: grid; grid-template-columns: repeat(var(--n, 6), 1fr); gap: 8px; align-items: end; height: 190px; margin-top: 10px; }
   .wcol { display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; height: 100%; min-width: 0; cursor: pointer; border: 0; background: none; padding: 0; color: inherit; }
   .wcol .wl { text-align: center; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; white-space: nowrap; }
-  .wcol .wb { border-radius: 4px 4px 2px 2px; background: #3a4560; min-height: 4px; }
+  .wcol .wb { border-radius: 4px 4px 2px 2px; background: #3a4560; min-height: 4px; height: 4px;
+    transition: height .6s cubic-bezier(.2,.8,.2,1), background-color .25s; }
+  .wcol .wl { transition: color .25s; }
+  .wcol:active .wb { filter: brightness(1.2); }
   .wcol:hover .wb { background: #4a5878; }
   .wcol.sel .wb { background: var(--gold); }
   .wcol.sel .wl { color: var(--text); }
@@ -301,6 +339,32 @@
   };
   // polska odmiana: 1 film, 2-4 filmy (ale 12-14 filmów), 5+ filmów
   const filmy = (n) => n === 1 ? "film" : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? "filmy" : "filmów";
+  // płynne przeliczanie liczb (od poprzedniej wartości do nowej)
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+  function tween(el, to, fmtFn, dur = 650, delay = 0) {
+    const from = typeof el._v === "number" ? el._v : 0;
+    el._v = to;
+    cancelAnimationFrame(el._raf); clearTimeout(el._to);
+    if (reduced || from === to) { el.textContent = fmtFn(to); return; }
+    const go = () => {
+      const t0 = performance.now();
+      const step = (now) => {
+        const k = Math.min(1, (now - t0) / dur);
+        el.textContent = fmtFn(from + (to - from) * easeOut(k));
+        if (k < 1) el._raf = requestAnimationFrame(step);
+      };
+      el._raf = requestAnimationFrame(step);
+    };
+    el.textContent = fmtFn(from);
+    if (delay) el._to = setTimeout(go, delay); else go();
+  }
+  function setDelta(el, text, cls) {
+    const changed = el.textContent !== text;
+    el.className = "delta num " + cls;
+    el.textContent = text;
+    if (changed && !reduced) { void el.offsetWidth; el.classList.add("pop"); }
+  }
   const earn = (views) => views >= MIN_VIEWS ? Math.round(views / 1000 * RATE_PER_1000 * 100) / 100 : 0;
   const rarity = (views) => views >= 100000 ? 5 : views >= 50000 ? 4 : views >= 25000 ? 3 : views >= 10000 ? 2 : views >= MIN_VIEWS ? 1 : 0;
 
@@ -343,6 +407,7 @@
   let shown = PAGE;
   let state = { videos: [], rate: null, rateDate: null, botAt: null, history: {}, errors: [] };
   let firstPaint = true;
+  let animateList = true;
 
   const cur = () => periods.find(p => p.id === period);
 
@@ -457,48 +522,79 @@
     });
   }
 
+  // słupki rosną dopiero, gdy wykres pojawi się na ekranie
+  let chartSeen = reduced || !("IntersectionObserver" in window);
+  function showBars() {
+    chartSeen = true;
+    $("wBars").querySelectorAll(".wb").forEach(b => { b.style.height = b.dataset.h || "4px"; });
+  }
+  function watchChart() {
+    if (chartSeen) return;
+    const io = new IntersectionObserver((es) => {
+      if (es.some(e => e.isIntersecting)) { io.disconnect(); requestAnimationFrame(showBars); }
+    }, { threshold: 0.35 });
+    io.observe($("wBars"));
+  }
+
   function renderChart() {
     const seg = $("metrics");
-    seg.innerHTML = "";
-    for (const m of METRICS) {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.textContent = m.label;
-      b.setAttribute("aria-pressed", String(m.id === metric));
-      b.onclick = () => { metric = m.id; store.set("metric", m.id); renderChart(); };
-      seg.appendChild(b);
+    if (!seg.children.length) {
+      const ind = document.createElement("span");
+      ind.className = "ind";
+      seg.appendChild(ind);
+      for (const m of METRICS) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = m.label;
+        b.dataset.id = m.id;
+        b.onclick = () => { metric = m.id; store.set("metric", m.id); renderChart(); };
+        seg.appendChild(b);
+      }
     }
+    const mi = METRICS.findIndex(m => m.id === metric);
+    seg.querySelector(".ind").style.transform = "translateX(calc(" + mi + " * (100% + 4px)))";
+    seg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === metric)));
     const W = weeks();
     const val = (w) => w[metric];
     const max = Math.max(...W.map(val), metric === "earn" ? 1 : 1);
     const bars = $("wBars"), dates = $("wDates");
-    bars.innerHTML = ""; dates.innerHTML = "";
-    bars.style.setProperty("--n", W.length); dates.style.setProperty("--n", W.length);
+    if (bars.children.length !== W.length) {          // budujemy raz, potem tylko zmieniamy (płynne przejścia)
+      bars.innerHTML = ""; dates.innerHTML = "";
+      bars.style.setProperty("--n", W.length); dates.style.setProperty("--n", W.length);
+      W.forEach((_, i) => {
+        const col = document.createElement("button");
+        col.type = "button";
+        const lab = document.createElement("span");
+        lab.className = "wl num";
+        const bar = document.createElement("span");
+        bar.className = "wb";
+        col.append(lab, bar);
+        col.onclick = () => { selWeek = i; renderChart(); };
+        bars.appendChild(col);
+        dates.appendChild(document.createElement("span"));
+      });
+      watchChart();
+    }
     W.forEach((w, i) => {
-      const col = document.createElement("button");
-      col.type = "button";
+      const col = bars.children[i];
       col.className = "wcol" + (i === selWeek ? " sel" : "");
       col.setAttribute("aria-label", "Tydzień od " + fmtDay(w.start));
-      const lab = document.createElement("span");
-      lab.className = "wl num";
-      lab.textContent = val(w) ? short(val(w)) : "—";
-      const bar = document.createElement("span");
-      bar.className = "wb";
-      bar.style.height = val(w) ? "calc(" + (val(w) / max) + " * (100% - 26px))" : "4px";
-      col.append(lab, bar);
-      col.onclick = () => { selWeek = i; renderChart(); };
-      bars.appendChild(col);
-      const dt = document.createElement("span");
+      col.querySelector(".wl").textContent = val(w) ? short(val(w)) : "—";
+      const bar = col.querySelector(".wb");
+      bar.dataset.h = val(w) ? "calc(" + (val(w) / max) + " * (100% - 26px))" : "4px";
+      if (chartSeen) bar.style.height = bar.dataset.h;
+      const dt = dates.children[i];
       dt.className = "num" + (i === selWeek ? " sel" : "");
       dt.textContent = fmtDay(w.start);
-      dates.appendChild(dt);
     });
 
     const w = W[selWeek], prev = W[selWeek - 1];
     const nowS = Date.now() / 1000;
     const current = nowS < w.to;
     $("wDate").textContent = fmtDay(w.start) + "–" + (current ? "dziś" : fmtDay(w.end));
-    $("wVal").textContent = metric === "earn" ? fmtUsd(w.earn) : metric === "count" ? w.count + " " + filmy(w.count) : fmtInt(w.views);
+    const wFmt = metric === "earn" ? fmtUsd : metric === "count" ? (x) => Math.round(x) + " " + filmy(Math.round(x)) : fmtInt;
+    if ($("wVal")._m !== metric) { $("wVal")._v = 0; $("wVal")._m = metric; }   // inna miara: liczymy od zera
+    tween($("wVal"), val(w), wFmt, 600);
     const dEl = $("wDelta");
     if (prev) {
       // bieżący tydzień porównujemy z tym samym kawałkiem poprzedniego (np. pon.–wt. z pon.–wt.)
@@ -510,8 +606,7 @@
       }
       const d = delta(val(w), pv, metric === "earn" ? fmtUsd : fmtInt);
       dEl.hidden = false;
-      dEl.className = "delta num " + d.cls;
-      dEl.textContent = d.text;
+      setDelta(dEl, d.text, d.cls);
       dEl.title = how;
     } else dEl.hidden = true;
     const zl = state.rate ? " ≈ " + fmtPln(w.earn * state.rate) : "";
@@ -580,7 +675,7 @@
 
   function render() {
     $("range").hidden = period !== "custom";
-    chips($("periods"), periods, period, (id) => { period = id; store.set("period3", id); shown = PAGE; render(); });
+    chips($("periods"), periods, period, (id) => { period = id; store.set("period3", id); shown = PAGE; animateList = true; render(); });
 
     const p = cur();
     const vids = state.videos.filter(inPeriod);
@@ -591,24 +686,25 @@
     const loaded = state.videos.length > 0;
 
     $("winLab").textContent = "Zarobek, " + p.long;
-    $("usd").textContent = loaded ? fmtUsd(usd) : "–";
-    $("pln").textContent = loaded && state.rate ? fmtPln(usd * state.rate) : "–";
+    const dly = firstPaint && loaded ? 1150 : 0;       // przy pierwszym wczytaniu liczymy, gdy ruletka stanie
+    if (loaded) tween($("usd"), usd, fmtUsd, 900, dly); else $("usd").textContent = "–";
+    if (loaded && state.rate) tween($("pln"), usd * state.rate, fmtPln, 900, dly); else $("pln").textContent = "–";
     const g1 = gain(24), g7 = gain(24 * 7);
-    $("g1").textContent = loaded ? "+" + fmtUsd(g1.sum) : "–";
-    $("g7").textContent = loaded ? "+" + fmtUsd(g7.sum) : "–";
+    const plusUsd = (x) => "+" + fmtUsd(x);
+    if (loaded) { tween($("g1"), g1.sum, plusUsd, 900, dly); tween($("g7"), g7.sum, plusUsd, 800); }
+    else { $("g1").textContent = "–"; $("g7").textContent = "–"; }
     const since = Math.min(g1.since, g7.since);
     $("g7Sub").textContent = !loaded ? " " : (!g1.exact || !g7.exact)
       ? "historia od " + (since < Infinity ? new Date(since * 1000).toLocaleDateString("pl-PL", { day: "numeric", month: "numeric" }) : "dziś") + ", będzie dokładniej"
       : (state.rate ? "≈ " + fmtPln(g7.sum * state.rate) : " ");
     $("paid").textContent = loaded ? paid.length + " z " + withBanner.length : "–";
-    $("views").textContent = loaded ? fmtInt(paidViews) : "–";
+    if (loaded) tween($("views"), paidViews, fmtInt, 800); else $("views").textContent = "–";
     const pr = loaded ? prevRange(p) : null;
     if (pr) {
       const ps = statsFor(pr.from, pr.to);
       const dz = delta(usd, ps.usd, fmtUsd);
       $("cmp").hidden = false;
-      $("cmpDelta").className = "delta num " + dz.cls;
-      $("cmpDelta").textContent = dz.text;
+      setDelta($("cmpDelta"), dz.text, dz.cls);
       $("cmpText").textContent = "względem: " + pr.label + " (" + fmtUsd(ps.usd) + ")";
       const sub = (el, text, d) => {
         el.textContent = text + " ";
@@ -638,7 +734,7 @@
       { id: "hidden", label: "Nie do sprawdzenia (" + hidden.length + ")", items: hidden },
     ];
     if (!tabs.some(t => t.id === tab)) tab = "banner";
-    chips($("tabs"), tabs, tab, (id) => { tab = id; store.set("tab2", id); shown = PAGE; render(); });
+    chips($("tabs"), tabs, tab, (id) => { tab = id; store.set("tab2", id); shown = PAGE; animateList = true; render(); });
     $("legend").hidden = tab !== "banner";
     const items = tabs.find(t => t.id === tab).items.slice().sort((a, b) => (b.t || 0) - (a.t || 0));
     const list = $("list");
@@ -651,7 +747,12 @@
         : "Brak klipów w tym okresie.";
       list.appendChild(e);
     }
-    for (const v of items.slice(0, shown)) list.appendChild(clipRow(v));
+    items.slice(0, shown).forEach((v, i) => {
+      const row = clipRow(v);
+      if (animateList && loaded && i < 12) { row.classList.add("in"); row.style.animationDelay = (i * 35) + "ms"; }
+      list.appendChild(row);
+    });
+    if (loaded) animateList = false;
     $("more").hidden = items.length <= shown;
 
     // stan bota
@@ -673,6 +774,7 @@
       firstPaint = false;
       const r = $("roulette");
       r.classList.remove("spin"); void r.offsetWidth; r.classList.add("spin");
+      if (!reduced) setTimeout(() => r.classList.add("glint"), 1250);
     }
   }
 
