@@ -197,7 +197,8 @@
   .paysum .due { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px;
     background: radial-gradient(80% 140% at 100% 50%, rgba(228,174,57,.16), transparent 70%), var(--bg2); }
   .paysum .due .val { font-size: 30px; font-weight: 700; color: var(--gold); }
-  .paysum .due .sub { font-size: 13px; color: var(--muted); }
+  .paysum .sub { font-size: 12px; color: var(--muted); }
+  .paysum .due .sub { font-size: 13px; }
   .btn2 {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #46557a; background: var(--tile2);
     color: var(--text); font-weight: 600; font-size: 15px; padding: 10px 14px; border-radius: 9px; cursor: pointer;
@@ -348,7 +349,7 @@
   <section class="pay" id="pay">
     <h2>Wypłaty</h2>
     <div class="paysum">
-      <div><div class="lab">Zarobione łącznie</div><div class="val num" id="payEarned">–</div></div>
+      <div><div class="lab">Zarobione łącznie</div><div class="val num" id="payEarned">–</div><div class="sub num" id="payEarnedUsd">&nbsp;</div></div>
       <div><div class="lab">Wypłacone</div><div class="val num" id="payPaid">–</div></div>
       <div class="due"><div><div class="lab">Do wypłaty</div><div class="sub num" id="payDuePln">&nbsp;</div></div><div class="val num" id="payDue">–</div></div>
     </div>
@@ -356,12 +357,9 @@
     <form class="payform" id="payForm" hidden novalidate>
       <div class="row2">
         <label>Data <input type="date" id="payDate" required></label>
-        <label>Kwota w $ <input type="text" inputmode="decimal" id="payUsd" placeholder="np. 120,50" autocomplete="off" required></label>
+        <label>Kwota w zł <input type="text" inputmode="decimal" id="payPln" placeholder="np. 489,90" autocomplete="off" required></label>
       </div>
-      <div class="row2">
-        <label>Dostałeś w zł (opcjonalnie) <input type="text" inputmode="decimal" id="payPln" placeholder="np. 489,90" autocomplete="off"></label>
-        <label>Notatka (opcjonalnie) <input type="text" id="payNote" maxlength="120" placeholder="np. PayPal" autocomplete="off"></label>
-      </div>
+      <label>Notatka (opcjonalnie) <input type="text" id="payNote" maxlength="120" placeholder="np. przelew, PayPal" autocomplete="off"></label>
       <div class="err" id="payErr"></div>
       <div class="acts">
         <button class="btn2 gold" type="submit">Zapisz na GitHubie</button>
@@ -889,14 +887,24 @@
     const pend = pendingPayouts().filter(p => !known.has(p.id) && Date.now() - Number(p.id) < 2 * 86400e3);
     savePending(pend);
     const all = [...pend.map(p => ({ ...p, pending: true })), ...state.payouts];
-    const earned = state.videos.filter(v => v.banner === true).reduce((a, v) => a + earn(v.views), 0);
-    const paid = all.reduce((a, p) => a + p.usd, 0);
-    const due = earned - paid;
-    if (loaded) {
-      tween($("payEarned"), earned, fmtUsd, 700);
-      tween($("payPaid"), paid, fmtUsd, 700);
-      tween($("payDue"), due, fmtUsd, 900);
-      $("payDuePln").textContent = state.rate ? "≈ " + fmtPln(due * state.rate) : "\u00a0";
+    // kampania płaci w $, wypłaty są w zł: zarobek przeliczamy po dzisiejszym kursie NBP
+    const rate = state.rate;
+    const plnOf = (p) => p.pln != null ? p.pln : (rate && p.usd ? p.usd * rate : 0);
+    const earnedUsd = state.videos.filter(v => v.banner === true).reduce((a, v) => a + earn(v.views), 0);
+    const paid = all.reduce((a, p) => a + plnOf(p), 0);
+    if (loaded && rate) {
+      const earned = earnedUsd * rate;
+      tween($("payEarned"), earned, fmtPln, 700);
+      $("payEarnedUsd").textContent = fmtUsd(earnedUsd) + " po kursie " + rate.toLocaleString("pl-PL", { minimumFractionDigits: 4 });
+      tween($("payPaid"), paid, fmtPln, 700);
+      tween($("payDue"), earned - paid, fmtPln, 900);
+      $("payDuePln").textContent = "≈ " + fmtUsd((earned - paid) / rate);
+    } else if (loaded) {
+      $("payEarned").textContent = fmtUsd(earnedUsd);
+      $("payEarnedUsd").textContent = "brak kursu NBP";
+      tween($("payPaid"), paid, fmtPln, 700);
+      $("payDue").textContent = "–";
+      $("payDuePln").textContent = "potrzebny kurs NBP";
     }
     const list = $("payList");
     list.innerHTML = "";
@@ -923,8 +931,8 @@
       left.append(d, n);
       const amt = document.createElement("div");
       amt.className = "pa num";
-      amt.textContent = fmtUsd(p.usd);
-      if (p.pln) { const sm = document.createElement("small"); sm.textContent = fmtPln(p.pln); amt.appendChild(sm); }
+      amt.textContent = fmtPln(plnOf(p));
+      if (p.pln == null && p.usd) { const sm = document.createElement("small"); sm.textContent = fmtUsd(p.usd); amt.appendChild(sm); }
       row.append(left, amt);
       list.appendChild(row);
     }
@@ -935,22 +943,18 @@
     $("payAdd").hidden = true;
     if (!$("payDate").value) $("payDate").value = isoDay(new Date());
     $("payErr").textContent = "";
-    $("payUsd").focus();
+    $("payPln").focus();
   };
   $("payCancel").onclick = () => { $("payForm").hidden = true; $("payAdd").hidden = false; };
   $("payForm").onsubmit = (e) => {
     e.preventDefault();
     const date = $("payDate").value;
-    const usd = parseAmount($("payUsd").value);
-    const plnRaw = $("payPln").value.trim();
-    const pln = plnRaw ? parseAmount(plnRaw) : null;
+    const pln = parseAmount($("payPln").value);
     const note = $("payNote").value.trim();
     if (!date) { $("payErr").textContent = "Wybierz datę wypłaty."; return; }
-    if (!(usd > 0)) { $("payErr").textContent = "Wpisz kwotę w dolarach, np. 120,50."; $("payUsd").focus(); return; }
-    if (plnRaw && !(pln > 0)) { $("payErr").textContent = "Kwota w złotówkach jest niepoprawna, np. 489,90 (albo zostaw puste)."; return; }
+    if (!(pln > 0)) { $("payErr").textContent = "Wpisz kwotę w złotówkach, np. 489,90."; $("payPln").focus(); return; }
     const id = String(Date.now());
-    const entry = { date, usd: Math.round(usd * 100) / 100 };
-    if (pln) entry.pln = Math.round(pln * 100) / 100;
+    const entry = { date, pln: Math.round(pln * 100) / 100 };
     if (note) entry.note = note;
     const body = JSON.stringify(entry, null, 1) + "\n";
     const url = "https://github.com/" + REPO + "/new/main?filename=" + encodeURIComponent("data/payouts/" + id + ".json") +
