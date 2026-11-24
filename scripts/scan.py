@@ -43,7 +43,9 @@ SOURCE = "https://369shoter.github.io/data/tiktok.js"
 LIVE = "https://369-panel.369shoter.workers.dev/live"
 USER = "369_shoter"
 SCAN_EVERY_S = 1          # klatka co sekundę (baner trwa ~4 s, więc łapiemy go kilka razy)
-MAX_TRIES = 6             # po tylu nieudanych pobraniach przestajemy próbować (zostaje ręczne zaznaczenie)
+MAX_TRIES = 6             # tyle prób pod rząd, potem rzadziej (patrz should_retry)
+RETRY_EVERY_S = 12 * 3600
+RETRY_MAX_AGE_S = 30 * 86400
 TIME_BUDGET_S = 20 * 60   # jeden przebieg skanuje najwyżej tyle czasu, reszta przy następnym
 
 
@@ -96,7 +98,10 @@ def page_views(video_id):
     m = re.search(r'<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>(.*?)</script>', html, re.S)
     if not m:
         raise RuntimeError("brak danych na stronie filmu")
-    item = json.loads(m.group(1))["__DEFAULT_SCOPE__"]["webapp.video-detail"]["itemInfo"]["itemStruct"]
+    detail = json.loads(m.group(1))["__DEFAULT_SCOPE__"].get("webapp.video-detail") or {}
+    item = (detail.get("itemInfo") or {}).get("itemStruct")
+    if not item or not item.get("stats"):
+        raise RuntimeError("film niewidoczny publicznie (%s)" % (detail.get("statusMsg") or detail.get("statusCode")))
     stats = item.get("statsV2") or item.get("stats") or {}
     return int(stats["playCount"]), int(item.get("createTime") or 0)
 
@@ -123,8 +128,9 @@ def refresh_views(banners):
             hist.append([now, views])
         if vid in banners:
             banners[vid]["views"] = views
-            if created and not banners[vid].get("t"):
+            if created:   # prawdziwa godzina publikacji (zaplanowany post wychodzi później niż wgranie)
                 banners[vid]["t"] = created
+                banners[vid]["t_src"] = "page"
         ok += 1
         time.sleep(0.3)
     cutoff = now - HISTORY_KEEP_DAYS * 86400
@@ -173,26 +179,55 @@ def scan_file(path, folder):
     )
     names = sorted(glob.glob(os.path.join(frames, "*.png")))
     hits = []
+    near = {}
+    near_sec = None
     for i, name in enumerate(names):
         img = cv2.imread(name)
         if img is None:
             continue
-        r = find_banner(img)
+        before = near.get("score", 0)
+        r = find_banner(img, near)
+        if near.get("score", 0) > before:
+            near_sec = i * SCAN_EVERY_S
         if r:
             hits.append((i * SCAN_EVERY_S, r))
-    return len(names), hits
+    return len(names), hits, (near.get("score"), near_sec)
+
+
+def error_reason(msg):
+    """Krótki powód, dla którego nie da się pobrać filmu (pokazywany w panelu)."""
+    m = msg.lower()
+    if "comfortable" in m or "log in for access" in m:
+        return "18+"
+    if "ip address is blocked" in m or "self_see" in m or "private" in m or "unavailable" in m:
+        return "ukryty"
+    return "blad"
+
+
+def should_retry(e, v):
+    """Najpierw MAX_TRIES prób pod rząd, potem raz na RETRY_EVERY_S, dopóki film ma mniej niż RETRY_MAX_AGE_S
+    (ukryty film może wrócić po odwołaniu, a chwilowa blokada TikToka minąć)."""
+    tries = e.get("tries", 0)
+    if tries < MAX_TRIES:
+        return True
+    age = time.time() - (v.get("t") or e.get("t") or 0)
+    return age < RETRY_MAX_AGE_S and time.time() - e.get("last_try", 0) > RETRY_EVERY_S
 
 
 def scan_video(video_id):
     folder = tempfile.mkdtemp(prefix="scan_")
     try:
         path = download(video_id, folder)
-        total, hits = scan_file(path, folder)
+        total, hits, (near, near_sec) = scan_file(path, folder)
         entry = {"banner": bool(hits), "at": int(time.time()), "frames": total}
         if hits:
             entry["sec"] = hits[0][0]
             entry["hits"] = len(hits)
             entry["color"] = hits[0][1]["color"]
+        elif near:
+            # najlepszy wynik poniżej progu: do ręcznej kontroli, czy jakiś baner nie umyka
+            entry["near"] = near
+            entry["near_sec"] = near_sec
         return entry
     finally:
         shutil.rmtree(folder, ignore_errors=True)
@@ -220,7 +255,7 @@ def main():
         e = banners.get(v["id"])
         if e is not None:
             e["title"] = v.get("title", "")
-            if v.get("t"):
+            if v.get("t") and e.get("t_src") != "page":
                 e["t"] = v["t"]
             if v.get("views") is not None:
                 e["views"] = max(v["views"], e.get("views") or 0)
@@ -232,7 +267,7 @@ def main():
             continue
         if e is None or args.rescan or args.id:
             todo.append(v)
-        elif "banner" not in e and e.get("tries", 0) < MAX_TRIES:
+        elif "banner" not in e and should_retry(e, v):
             todo.append(v)
     todo.sort(key=lambda v: v["id"], reverse=True)  # najnowsze najpierw
     if args.limit:
@@ -258,7 +293,8 @@ def main():
                 warn(f"{vid}: {exc} (zostaje poprzedni wynik)")
             else:
                 tries = prev.get("tries", 0) + 1
-                banners[vid] = {**base, "error": str(exc)[:200], "tries": tries}
+                banners[vid] = {**base, "error": str(exc)[:200], "reason": error_reason(str(exc)),
+                                "tries": tries, "last_try": int(time.time())}
                 warn(f"{vid}: {exc} (próba {tries})")
         done += 1
         if done % 5 == 0:

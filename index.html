@@ -4,176 +4,244 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0b0a10">
+<meta name="theme-color" content="#121722">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Klipometr">
 <title>Klipometr</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✂️</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='3' y='14' width='58' height='36' rx='7' fill='%23121722' stroke='%233fb6e8' stroke-width='5'/><path d='M24 14h16l-8 11zM24 50h16l-8-11z' fill='%233fb6e8'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira:wdth,wght@50..125,300..800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0b0a10;
-    --card: #121118;
-    --line: #25232d;
-    --text: #f5f4f8;
-    --muted: #a3a1ad;
-    --g1: #8b5cf6;
-    --g2: #ec4899;
-    --ok: #4ade80;
-    --bad: #f87171;
-    --warn: #fbbf24;
+    --bg: #121722;
+    --bg2: #171d2b;
+    --tile: #1d2434;
+    --tile2: #232c3f;
+    --line: #2c3650;
+    --text: #e9eef6;
+    --muted: #8d99b0;
+    --frame: #3fb6e8;     /* ramka baneru */
+    --gold: #e4ae39;
+    --ok: #5fd38d;
+    --warn: #e4ae39;
+    --bad: #eb4b4b;
+    /* rzadkość skinów z CS2 */
+    --r0: #b0c3d9;  /* poniżej 5000: nie zarabia */
+    --r1: #4b69ff;  /* 5-10 tys. */
+    --r2: #8847ff;  /* 10-25 tys. */
+    --r3: #d32ce6;  /* 25-50 tys. */
+    --r4: #eb4b4b;  /* 50-100 tys. */
+    --r5: #e4ae39;  /* od 100 tys. */
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
+    margin: 0; color: var(--text);
+    font-family: "Saira", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variation-settings: "wdth" 100;
+    font-size: 16px; line-height: 1.5;
     background:
-      radial-gradient(900px 500px at 10% -10%, rgba(139,92,246,.18), transparent 60%),
-      radial-gradient(700px 400px at 100% 0%, rgba(236,72,153,.10), transparent 60%),
+      radial-gradient(120% 60% at 50% -10%, #1f2a41 0%, transparent 60%),
       var(--bg);
     background-attachment: fixed;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 620px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 16px 48px; }
-  header { display: flex; align-items: center; gap: 14px; padding: 14px 0 18px; border-bottom: 1px solid var(--line); }
-  .logo {
-    width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; font-size: 24px;
-    background: linear-gradient(135deg, var(--g1), var(--g2));
-    box-shadow: 0 0 28px rgba(139,92,246,.45);
+  .num { font-variation-settings: "wdth" 72; font-variant-numeric: tabular-nums; letter-spacing: .005em; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 56px; }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--frame); outline-offset: 2px; border-radius: 6px; }
+
+  /* nagłówek */
+  header { display: flex; align-items: center; gap: 12px; padding: 6px 0 14px; }
+  .mark { width: 40px; height: 40px; flex: none; }
+  .brand { font-weight: 800; font-size: 22px; font-variation-settings: "wdth" 115; letter-spacing: .04em; }
+  .status {
+    margin-left: auto; display: flex; align-items: center; gap: 8px; padding: 6px 10px 6px 8px;
+    border: 1px solid var(--line); border-radius: 999px; background: var(--bg2);
+    font-size: 13px; color: var(--muted); cursor: pointer; white-space: nowrap;
   }
-  .brand {
-    font-weight: 800; letter-spacing: .12em; font-size: 22px;
-    background: linear-gradient(90deg, var(--g1), var(--g2));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
-  h1 { font-size: 30px; margin: 22px 0 8px; letter-spacing: -.01em; }
-  .lead { color: var(--muted); font-size: 16px; line-height: 1.5; margin: 0 0 18px; }
-  .lead b { color: var(--text); }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .btn {
-    border: 0; cursor: pointer; font: inherit; font-weight: 700; font-size: 16px; color: #fff;
-    padding: 12px 18px; border-radius: 14px;
-    background: linear-gradient(90deg, var(--g1), var(--g2));
-    display: inline-flex; align-items: center; gap: 8px;
-    transition: transform .12s ease, opacity .2s;
-  }
-  .btn:active { transform: scale(.97); }
-  .btn[disabled] { opacity: .6; }
-  .btn .spin { display: inline-block; }
-  .btn.loading .spin { animation: spin 1s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .chips { display: flex; gap: 8px; margin: 18px 0 4px; overflow-x: auto; scrollbar-width: none; }
-  .chips::-webkit-scrollbar { display: none; }
+  .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+  .status.ok .dot { background: var(--ok); box-shadow: 0 0 0 3px rgba(95,211,141,.18); }
+  .status.warn .dot { background: var(--warn); }
+  .status.bad .dot { background: var(--bad); }
+  .status.loading .dot { animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .3; } }
+
+  /* okresy */
+  .periods { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 4px -16px 0; padding: 0 16px 2px; }
+  .periods::-webkit-scrollbar { display: none; }
   .chip {
-    border: 1px solid var(--line); background: var(--card); color: var(--muted); font: inherit; font-size: 14px;
-    padding: 8px 13px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+    border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 14px;
+    padding: 7px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap;
   }
-  .chip.on { color: #fff; border-color: transparent; background: linear-gradient(90deg, rgba(139,92,246,.35), rgba(236,72,153,.35)); }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 18px 18px 20px; min-width: 0; }
-  .card .k { color: var(--muted); font-size: 15px; display: flex; gap: 8px; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .card .v { font-size: clamp(24px, 7vw, 34px); font-weight: 800; margin-top: 12px; letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .card .s { color: var(--muted); font-size: 13px; margin-top: 4px; }
-  .meta { color: var(--muted); font-size: 13px; margin-top: 14px; line-height: 1.5; }
-  .meta .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); margin-right: 6px; vertical-align: middle; }
-  .meta .err { color: var(--bad); }
-  h2 { font-size: 20px; margin: 30px 0 6px; }
-  .tabs { display: flex; gap: 6px; margin: 10px 0 12px; overflow-x: auto; scrollbar-width: none; }
-  .tabs::-webkit-scrollbar { display: none; }
-  .list { display: flex; flex-direction: column; gap: 8px; }
-  .item {
-    display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center;
-    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px;
-    color: inherit; text-decoration: none;
-  }
-  .item .t { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .item .d { color: var(--muted); font-size: 13px; }
-  .item .r { text-align: right; font-variant-numeric: tabular-nums; }
-  .item .r b { display: block; font-size: 15px; }
-  .item .r span { font-size: 13px; color: var(--muted); }
-  .tag { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-left: 6px; }
-  .tag.paid { background: rgba(74,222,128,.14); color: var(--ok); }
-  .tag.low { background: rgba(255,255,255,.06); color: var(--muted); }
-  .tag.err { background: rgba(251,191,36,.12); color: var(--warn); }
-  .tag.man { background: rgba(139,92,246,.18); color: #c4b5fd; }
-  .empty { color: var(--muted); text-align: center; padding: 28px 10px; border: 1px dashed var(--line); border-radius: 16px; }
-  .more { margin: 12px auto 0; display: block; background: var(--card); border: 1px solid var(--line); color: var(--text); font: inherit; padding: 10px 16px; border-radius: 12px; cursor: pointer; }
-  .more[hidden] { display: none; }
-  .wide { margin-top: 18px; }
-  .gain { background: linear-gradient(135deg, rgba(139,92,246,.16), rgba(236,72,153,.10)), var(--card); }
-  .gains { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .gains .v { color: var(--ok); }
-  .note { margin-top: 10px; }
-  .label { color: var(--muted); font-size: 14px; margin: 22px 0 -8px; }
-  .range { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .chip[aria-pressed="true"] { color: var(--text); background: var(--tile2); border-color: #46557a; }
+  .range { display: flex; align-items: end; gap: 8px; margin-top: 10px; }
   .range[hidden] { display: none; }
-  .range label { flex: 1; display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 13px; min-width: 0; }
-  .range input {
-    font: inherit; font-size: 16px; color: var(--text); background: var(--card); border: 1px solid var(--line);
-    border-radius: 12px; padding: 9px 10px; width: 100%; min-width: 0; color-scheme: dark;
+  .range label { flex: 1; display: grid; gap: 4px; color: var(--muted); font-size: 13px; min-width: 0; }
+  .range input { font-size: 16px; background: var(--tile); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0; }
+
+  /* ruletka: ten sam kształt co baner, który bot wykrywa */
+  .roulette {
+    position: relative; margin: 16px 0 0; padding: 10px; border-radius: 14px;
+    border: 3px solid var(--frame); background: #0f1420; overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(63,182,232,.15), 0 18px 50px -20px rgba(63,182,232,.35);
   }
-  .range .dash { color: var(--muted); padding-top: 18px; }
-  footer { color: var(--muted); font-size: 12px; margin-top: 28px; line-height: 1.6; }
+  .roulette::before, .roulette::after {
+    content: ""; position: absolute; left: 50%; width: 26px; height: 18px; translate: -50% 0; z-index: 2;
+    background: var(--frame);
+  }
+  .roulette::before { top: -1px; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .roulette::after { bottom: -1px; clip-path: polygon(0 100%, 100% 100%, 50% 0); }
+  .track { display: grid; grid-template-columns: 1fr 1.55fr 1fr; gap: 8px; }
+  .tile {
+    position: relative; border-radius: 8px; padding: 14px 10px 12px; min-width: 0;
+    background: linear-gradient(180deg, var(--tile2), var(--tile));
+    display: flex; flex-direction: column; justify-content: flex-end; min-height: 128px;
+  }
+  .tile::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-radius: 0 0 8px 8px; background: var(--rc, var(--r0)); }
+  .tile .lab { font-size: 13px; color: var(--muted); line-height: 1.25; }
+  .tile .val { font-weight: 700; font-size: clamp(16px, 4.6vw, 24px); line-height: 1.1; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile.win { --rc: var(--gold); background: radial-gradient(90% 80% at 50% 100%, rgba(228,174,57,.20), transparent 70%), linear-gradient(180deg, #2a2a33, #1f2230); }
+  .tile.win .val { font-size: clamp(26px, 7.4vw, 40px); font-weight: 800; }
+  .tile.win .lab { color: #d9c49a; }
+  .side .val { color: #cfd8e8; }
+  .gain .val { color: var(--ok); }
+  .spin .track { animation: spin 1.5s cubic-bezier(.12,.75,.2,1) both; }
+  @keyframes spin { from { transform: translateX(-140%); filter: blur(3px); } 70% { filter: blur(0); } to { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .spin .track { animation: none; } .status.loading .dot { animation: none; } }
+
+  .rule { color: var(--muted); font-size: 14px; margin: 12px 2px 0; }
+  .rule b { color: var(--text); font-weight: 600; }
+
+  /* liczby pod ruletką */
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin-top: 18px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .stat { background: var(--bg2); padding: 12px 14px; min-width: 0; }
+  .stat .lab { font-size: 13px; color: var(--muted); }
+  .stat .val { font-size: 22px; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+  .stat .sub { font-size: 12px; color: var(--muted); }
+  .stat .val.up { color: var(--ok); }
+
+  h2 { font-size: 18px; font-weight: 700; margin: 30px 0 10px; font-variation-settings: "wdth" 105; }
+  .hint { color: var(--muted); font-size: 13px; margin: -6px 0 10px; }
+
+  /* wykres */
+  .chart { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding: 0 2px; border-bottom: 1px solid var(--line); }
+  .bar { flex: 1; min-width: 3px; position: relative; display: flex; align-items: flex-end; height: 100%; }
+  .bar i { display: block; width: 100%; border-radius: 3px 3px 0 0; background: var(--frame); opacity: .85; min-height: 1px; }
+  .bar.zero i { background: var(--line); }
+  .bar:hover i, .bar:focus i { opacity: 1; background: var(--gold); }
+  .bar .tip {
+    position: absolute; bottom: calc(100% + 6px); left: 50%; translate: -50% 0; background: var(--tile2); border: 1px solid var(--line);
+    border-radius: 6px; padding: 4px 8px; font-size: 12px; white-space: nowrap; pointer-events: none; opacity: 0; z-index: 3;
+  }
+  .bar:hover .tip, .bar:focus .tip { opacity: 1; }
+  .axis { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+  /* lista klipów */
+  .tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 10px; padding: 0 16px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+  .legend span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; background: var(--c); vertical-align: 0; }
+  .list { display: grid; gap: 8px; }
+  .clip {
+    --rc: var(--line);
+    display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center;
+    padding: 8px 12px 8px 8px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--line);
+    border-left: 3px solid var(--rc); color: inherit; text-decoration: none;
+  }
+  .clip:hover { background: var(--tile); }
+  .thumb { width: 56px; height: 74px; border-radius: 6px; background: var(--tile2) center/cover no-repeat; overflow: hidden; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .clip .t { font-weight: 600; font-size: 15px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .clip .d { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .clip .r { text-align: right; white-space: nowrap; }
+  .clip .r b { display: block; font-size: 18px; font-weight: 700; }
+  .clip .r span { font-size: 13px; color: var(--muted); }
+  .clip .r .money { color: var(--text); font-weight: 600; }
+  .prog { height: 4px; border-radius: 2px; background: var(--line); margin-top: 6px; overflow: hidden; }
+  .prog i { display: block; height: 100%; background: var(--r0); }
+  .tag { display: inline-block; font-size: 12px; padding: 0 6px; border-radius: 4px; margin-left: 6px; background: rgba(255,255,255,.06); color: var(--muted); }
+  .tag.man { background: rgba(136,71,255,.18); color: #c3a8ff; }
+  .tag.warn { background: rgba(228,174,57,.14); color: var(--warn); }
+  .empty { color: var(--muted); text-align: center; padding: 28px 12px; border: 1px dashed var(--line); border-radius: 10px; }
+  .more { display: block; margin: 12px auto 0; background: var(--tile); border: 1px solid var(--line); padding: 9px 16px; border-radius: 8px; cursor: pointer; }
+  .more[hidden] { display: none; }
+  .error { margin-top: 14px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(235,75,75,.4); background: rgba(235,75,75,.08); color: #ffb4b4; font-size: 14px; }
+  .error[hidden] { display: none; }
+  footer { color: var(--muted); font-size: 13px; margin-top: 32px; line-height: 1.6; max-width: 70ch; }
   footer a { color: var(--muted); }
-  @media (max-width: 380px) { .grid { gap: 10px; } .card { padding: 14px; border-radius: 18px; } .card .k { font-size: 13px; } }
-  @media (prefers-reduced-motion: reduce) { .btn.loading .spin { animation: none; } }
+
+  @media (max-width: 370px) {
+    .track { grid-template-columns: 1fr 1.5fr 1fr; gap: 6px; }
+    .tile { padding: 12px 8px 10px; min-height: 116px; }
+    .tile .lab { font-size: 12px; }
+    .clip { grid-template-columns: 46px 1fr auto; gap: 10px; }
+    .thumb { width: 46px; height: 62px; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="logo">✂️</div>
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <rect x="3" y="14" width="58" height="36" rx="7" fill="#1d2434" stroke="#3fb6e8" stroke-width="4"/>
+      <path d="M25 14h14l-7 10zM25 50h14l-7-10z" fill="#3fb6e8"/>
+      <rect x="27" y="27" width="10" height="10" rx="2" fill="#e4ae39"/>
+    </svg>
     <div class="brand">KLIPOMETR</div>
+    <button class="status loading" id="status" type="button" title="Odśwież dane"><span class="dot"></span><span id="statusText">Wczytuję…</span></button>
   </header>
 
-  <h1>Saldo TikTok</h1>
-  <p class="lead">
-    Zarobek z filmów z banerem: <b>0,70 $ za 1000 wyświetleń</b>, tylko za filmy, które mają
-    <b>co najmniej 5000</b> wyświetleń (4 500 = 0 $, 5 000 = 3,50 $). Kwoty w dolarach, podsumowanie
-    także w złotówkach (kurs NBP).
-  </p>
-
-  <div class="row">
-    <button class="btn" id="refresh"><span class="spin">🔄</span> Odśwież</button>
-  </div>
-
-  <div class="card wide gain">
-    <div class="k">📈 Przybyło zarobku</div>
-    <div class="gains">
-      <div><div class="v" id="g1">–</div><div class="s">ostatnie 24 h</div></div>
-      <div><div class="v" id="g7">–</div><div class="s">ostatnie 7 dni</div></div>
-    </div>
-    <div class="s note" id="gnote"></div>
-  </div>
-
-  <div class="label">Filmy opublikowane:</div>
-  <div class="chips" id="periods"></div>
+  <div class="periods" id="periods" role="group" aria-label="Filmy opublikowane w okresie"></div>
   <div class="range" id="range" hidden>
     <label>Od <input type="date" id="from"></label>
-    <span class="dash">–</span>
     <label>Do <input type="date" id="to"></label>
   </div>
 
-  <div class="grid">
-    <div class="card"><div class="k">💵 Zarobek</div><div class="v" id="usd">–</div></div>
-    <div class="card"><div class="k">🇵🇱 Szacunkowo</div><div class="v" id="pln">–</div><div class="s" id="rate"></div></div>
-    <div class="card"><div class="k">🎬 Płatne filmy</div><div class="v" id="paid">–</div></div>
-    <div class="card"><div class="k">👁️ Płatne wyświetlenia</div><div class="v" id="views">–</div></div>
+  <div class="roulette" id="roulette" aria-live="polite">
+    <div class="track">
+      <div class="tile side gain" style="--rc: var(--ok)"><div class="lab">Przybyło w 24 h</div><div class="val num" id="g1">–</div></div>
+      <div class="tile win"><div class="lab" id="winLab">Zarobek, ostatnie 7 dni</div><div class="val num" id="usd">–</div></div>
+      <div class="tile side" style="--rc: var(--r1)"><div class="lab">W złotówkach</div><div class="val num" id="pln">–</div></div>
+    </div>
   </div>
+  <p class="rule"><b>0,70 $ za 1000 wyświetleń</b> za każdy film z banerem, który ma co najmniej 5000 wyświetleń.</p>
 
-  <div class="meta" id="meta">Wczytywanie…</div>
+  <div class="stats">
+    <div class="stat"><div class="lab">Płatne filmy</div><div class="val num" id="paid">–</div><div class="sub" id="paidSub">&nbsp;</div></div>
+    <div class="stat"><div class="lab">Płatne wyświetlenia</div><div class="val num" id="views">–</div><div class="sub" id="viewsSub">&nbsp;</div></div>
+    <div class="stat"><div class="lab">Przybyło w 7 dni</div><div class="val num up" id="g7">–</div><div class="sub" id="g7Sub">&nbsp;</div></div>
+    <div class="stat"><div class="lab">Kurs NBP</div><div class="val num" id="rate">–</div><div class="sub" id="rateSub">&nbsp;</div></div>
+  </div>
+  <div class="error" id="error" hidden></div>
 
-  <h2>Filmy</h2>
-  <div class="tabs" id="tabs"></div>
+  <h2>Zarobek według dnia publikacji</h2>
+  <div class="chart" id="chart"></div>
+  <div class="axis"><span id="axFrom"></span><span id="axTo"></span></div>
+
+  <h2>Klipy</h2>
+  <div class="tabs" id="tabs" role="group" aria-label="Rodzaj klipów"></div>
+  <div class="legend" id="legend">
+    <span style="--c: var(--r0)">poniżej 5 tys.</span>
+    <span style="--c: var(--r1)">5 tys.</span>
+    <span style="--c: var(--r2)">10 tys.</span>
+    <span style="--c: var(--r3)">25 tys.</span>
+    <span style="--c: var(--r4)">50 tys.</span>
+    <span style="--c: var(--r5)">100 tys.+</span>
+  </div>
   <div class="list" id="list"></div>
-  <button class="more" id="more" hidden>Pokaż więcej</button>
+  <button class="more" id="more" type="button" hidden>Pokaż więcej</button>
 
   <footer>
-    Baner wykrywa bot, który ogląda każdy nowy film klatka po klatce (co sekundę) i przy okazji czyta z TikToka
-    świeże wyświetlenia filmów z banerem. Bot działa sam, mniej więcej co 12 minut, także gdy komputer jest wyłączony.
-    TikTok podaje duże liczby z dokładnością do 100.
-    <br>Pomyłka bota? Zobacz <a href="https://github.com/tymonekk/klipometr/blob/main/data/overrides.json">data/overrides.json</a>.
+    Bot sam ogląda każdy nowy film klatka po klatce (co sekundę) i szuka baneru. Mniej więcej co 12 minut
+    odczytuje też z TikToka świeże wyświetlenia filmów z banerem, także gdy Twój komputer jest wyłączony.
+    TikTok podaje duże liczby z dokładnością do 100. Filmy ukryte przez TikToka (widoczne tylko dla Ciebie)
+    i oznaczone jako 18+ nie dają się sprawdzić automatycznie.
+    <br>Bot się pomylił? Dopisz numer filmu w <a href="https://github.com/tymonekk/klipometr/blob/main/data/overrides.json">data/overrides.json</a>.
   </footer>
 </div>
 
@@ -182,13 +250,16 @@
   const RATE_PER_1000 = 0.70;
   const MIN_VIEWS = 5000;
   const SOURCE = "https://369shoter.github.io/data/tiktok.js";
-  const PAGE = 30;
+  const COVERS = "https://369shoter.github.io/assets/covers/";
+  const PAGE = 25;
 
   const $ = (id) => document.getElementById(id);
-  const fmtUsd = (n) => n.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " $";
-  const fmtPln = (n) => n.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
+  const fmt2 = (n) => n.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtUsd = (n) => fmt2(n) + " $";
+  const fmtPln = (n) => fmt2(n) + " zł";
   const fmtInt = (n) => Math.round(n).toLocaleString("pl-PL");
   const fmtDate = (t) => t ? new Date(t * 1000).toLocaleDateString("pl-PL", { day: "numeric", month: "short" }) : "";
+  const fmtDay = (d) => d.toLocaleDateString("pl-PL", { day: "numeric", month: "numeric" });
   const ago = (ms) => {
     const m = Math.round((Date.now() - ms) / 60000);
     if (m < 1) return "przed chwilą";
@@ -201,68 +272,55 @@
     get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },
   };
+  const earn = (views) => views >= MIN_VIEWS ? Math.round(views / 1000 * RATE_PER_1000 * 100) / 100 : 0;
+  const rarity = (views) => views >= 100000 ? 5 : views >= 50000 ? 4 : views >= 25000 ? 3 : views >= 10000 ? 2 : views >= MIN_VIEWS ? 1 : 0;
 
-  // okresy rozliczeń (po dacie publikacji filmu)
+  // ---------- okresy (po dacie publikacji filmu) ----------
   const now = new Date();
   const monthStart = (y, m) => new Date(y, m, 1).getTime() / 1000;
   const monthName = (y, m) => new Date(y, m, 1).toLocaleDateString("pl-PL", { month: "long" });
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() / 1000;
   const periods = [
-    { id: "d7", label: "Ostatnie 7 dni", from: Date.now() / 1000 - 7 * 86400, to: Infinity },
-    { id: "d30", label: "30 dni", from: Date.now() / 1000 - 30 * 86400, to: Infinity },
-    { id: "m0", label: cap(monthName(now.getFullYear(), now.getMonth())),
+    { id: "d7", label: "7 dni", long: "ostatnie 7 dni", from: Date.now() / 1000 - 7 * 86400, to: Infinity },
+    { id: "d1", label: "Dziś", long: "dziś", from: today0, to: Infinity },
+    { id: "d30", label: "30 dni", long: "ostatnie 30 dni", from: Date.now() / 1000 - 30 * 86400, to: Infinity },
+    { id: "m0", label: cap(monthName(now.getFullYear(), now.getMonth())), long: monthName(now.getFullYear(), now.getMonth()),
       from: monthStart(now.getFullYear(), now.getMonth()), to: Infinity },
-    { id: "m1", label: cap(monthName(now.getFullYear(), now.getMonth() - 1)),
+    { id: "m1", label: cap(monthName(now.getFullYear(), now.getMonth() - 1)), long: monthName(now.getFullYear(), now.getMonth() - 1),
       from: monthStart(now.getFullYear(), now.getMonth() - 1), to: monthStart(now.getFullYear(), now.getMonth()) },
-    { id: "all", label: "Wszystko", from: 0, to: Infinity },
+    { id: "all", label: "Wszystko", long: "od początku", from: 0, to: Infinity },
+    { id: "custom", label: "Od – do", long: "wybrany zakres", from: 0, to: Infinity },
   ];
-
-  let period = store.get("period2", "d7");
-  if (period !== "custom" && !periods.some(p => p.id === period)) period = "d7";
-  let tab = store.get("tab", "banner");
-  let shown = PAGE;
-  let state = { videos: [], rate: null, rateDate: null, updated: null, history: {}, scanned: 0, errors: [] };
-
-  function renderChips() {
-    $("range").hidden = period !== "custom";
-    $("periods").innerHTML = "";
-    for (const p of periods) {
-      const b = document.createElement("button");
-      b.className = "chip" + (p.id === period ? " on" : "");
-      b.textContent = p.label;
-      b.onclick = () => { period = p.id; store.set("period2", period); shown = PAGE; render(); };
-      $("periods").appendChild(b);
-    }
-  }
-
-  // własny zakres "od - do" (pełne dni, czas lokalny; "do" włącznie)
+  const custom = periods.find(p => p.id === "custom");
   const isoDay = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   const dayStart = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d).getTime() / 1000; };
-  const custom = { id: "custom", label: "📅 Od – do", from: 0, to: Infinity };
-  periods.push(custom);
   $("from").value = store.get("from", isoDay(new Date(Date.now() - 6 * 86400e3)));
-  $("to").value = store.get("to", isoDay(new Date()));
+  $("to").value = store.get("to", isoDay(now));
   function readRange() {
     let a = $("from").value, b = $("to").value;
     if (a && b && a > b) { [a, b] = [b, a]; $("from").value = a; $("to").value = b; }
     custom.from = a ? dayStart(a) : 0;
     custom.to = b ? dayStart(b) + 86400 : Infinity;
+    custom.long = (a ? fmtDay(new Date(custom.from * 1000)) : "…") + " – " + (b ? fmtDay(new Date((custom.to - 1) * 1000)) : "…");
     store.set("from", a); store.set("to", b);
   }
   readRange();
   for (const id of ["from", "to"]) $(id).addEventListener("change", () => { readRange(); shown = PAGE; render(); });
 
-  function inPeriod(v) {
-    const p = periods.find(p => p.id === period);
-    const t = v.t || 0;
-    return t >= p.from && t < p.to;
-  }
+  let period = store.get("period3", "d7");
+  if (!periods.some(p => p.id === period)) period = "d7";
+  let tab = store.get("tab2", "banner");
+  let shown = PAGE;
+  let state = { videos: [], rate: null, rateDate: null, botAt: null, history: {}, errors: [] };
+  let firstPaint = true;
 
-  const earn = (views) => views >= MIN_VIEWS ? Math.round(views / 1000 * RATE_PER_1000 * 100) / 100 : 0;
+  const cur = () => periods.find(p => p.id === period);
+  const inPeriod = (v) => { const p = cur(); const t = v.t || 0; return t >= p.from && t < p.to; };
 
-  // ile wyświetleń miał film w chwili t0 (z historii zapisywanej przez bota)
+  // ---------- przyrost z historii wyświetleń ----------
   function viewsAt(v, t0) {
-    if ((v.t || 0) >= t0) return { views: 0, exact: true };       // film wyszedł później
+    if ((v.t || 0) >= t0) return { views: 0, exact: true };
     const h = state.history[v.id] || [];
     let before = null;
     for (const p of h) { if (p[0] <= t0) before = p; else break; }
@@ -270,7 +328,6 @@
     if (h.length) return { views: h[0][1], exact: false, since: h[0][0] };
     return { views: v.views, exact: false, since: null };
   }
-
   function gain(hours) {
     const t0 = Date.now() / 1000 - hours * 3600;
     let sum = 0, exact = true, since = Infinity;
@@ -283,134 +340,220 @@
     return { sum, exact, since };
   }
 
+  // ---------- rysowanie ----------
+  function chips(el, items, active, onPick) {
+    el.innerHTML = "";
+    for (const it of items) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.setAttribute("aria-pressed", String(it.id === active));
+      b.textContent = it.label;
+      b.onclick = () => onPick(it.id);
+      el.appendChild(b);
+    }
+  }
+
+  function renderChart(vids) {
+    const p = cur();
+    const banner = vids.filter(v => v.banner === true);
+    let from = p.from, to = Math.min(p.to, Date.now() / 1000);
+    if (!isFinite(from) || from === 0) from = banner.length ? Math.min(...banner.map(v => v.t || to)) : to - 7 * 86400;
+    const d0 = new Date(from * 1000); d0.setHours(0, 0, 0, 0);
+    const days = Math.max(1, Math.ceil((to - d0.getTime() / 1000) / 86400));
+    const step = days > 45 ? 7 : 1;                 // długie okresy po tygodniach
+    const n = Math.ceil(days / step);
+    const buckets = Array.from({ length: n }, (_, i) => ({ start: new Date(d0.getTime() + i * step * 86400e3), sum: 0, count: 0 }));
+    for (const v of banner) {
+      const i = Math.floor(((v.t || 0) * 1000 - d0.getTime()) / (step * 86400e3));
+      if (i >= 0 && i < n) { buckets[i].sum += earn(v.views); buckets[i].count++; }
+    }
+    const max = Math.max(1, ...buckets.map(b => b.sum));
+    const chart = $("chart");
+    chart.innerHTML = "";
+    for (const b of buckets) {
+      const el = document.createElement("div");
+      el.className = "bar" + (b.sum ? "" : " zero");
+      el.tabIndex = 0;
+      const bar = document.createElement("i");
+      bar.style.height = (b.sum / max * 100) + "%";
+      const tip = document.createElement("span");
+      tip.className = "tip num";
+      tip.textContent = (step === 7 ? "tydz. od " : "") + fmtDay(b.start) + ": " + fmtUsd(b.sum) + (b.count ? " (" + b.count + ")" : "");
+      el.append(tip, bar);
+      chart.appendChild(el);
+    }
+    $("axFrom").textContent = fmtDay(buckets[0].start);
+    $("axTo").textContent = step === 7 ? fmtDay(buckets[n - 1].start) : fmtDay(new Date(to * 1000));
+  }
+
+  function clipRow(v) {
+    const a = document.createElement("a");
+    a.className = "clip";
+    a.href = "https://www.tiktok.com/@369_shoter/video/" + v.id;
+    a.target = "_blank";
+    a.rel = "noopener";
+    if (v.banner === true) a.style.setProperty("--rc", "var(--r" + rarity(v.views) + ")");
+
+    const th = document.createElement("div");
+    th.className = "thumb";
+    if (v.lqip) th.style.backgroundImage = "url(" + v.lqip + ")";
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.alt = "";
+    img.src = COVERS + v.id + ".webp";
+    img.onerror = () => img.remove();
+    th.appendChild(img);
+
+    const mid = document.createElement("div");
+    mid.style.minWidth = "0";
+    const t = document.createElement("div");
+    t.className = "t";
+    t.textContent = v.title || "Film " + v.id;
+    const d = document.createElement("div");
+    d.className = "d";
+    d.textContent = fmtDate(v.t);
+    const tag = (text, cls) => { const s = document.createElement("span"); s.className = "tag" + (cls ? " " + cls : ""); s.textContent = text; d.appendChild(s); };
+    if (v.manual) tag("zaznaczony ręcznie", "man");
+    if (v.banner === null) tag(v.reason === "18+" ? "18+, wymaga logowania" : v.reason === "ukryty" ? "ukryty przez TikToka" : v.error ? "nie udało się pobrać" : "czeka na bota", "warn");
+    mid.append(t, d);
+    if (v.banner === true && v.views < MIN_VIEWS) {
+      const pr = document.createElement("div");
+      pr.className = "prog";
+      pr.title = "Brakuje " + fmtInt(MIN_VIEWS - v.views) + " do 5000";
+      const i = document.createElement("i");
+      i.style.width = Math.min(100, v.views / MIN_VIEWS * 100) + "%";
+      pr.appendChild(i);
+      const miss = document.createElement("div");
+      miss.className = "d";
+      miss.textContent = "brakuje " + fmtInt(MIN_VIEWS - v.views) + " do 5000";
+      mid.append(pr, miss);
+    }
+
+    const r = document.createElement("div");
+    r.className = "r";
+    const vb = document.createElement("b");
+    vb.className = "num";
+    vb.textContent = fmtInt(v.views || 0);
+    const vs = document.createElement("span");
+    if (v.banner === true) { vs.className = "money num"; vs.textContent = fmtUsd(earn(v.views)); }
+    else vs.textContent = "wyświetleń";
+    r.append(vb, vs);
+    a.append(th, mid, r);
+    return a;
+  }
+
   function render() {
-    renderChips();
-    const g1 = gain(24), g7 = gain(24 * 7);
-    $("g1").textContent = "+" + fmtUsd(g1.sum);
-    $("g7").textContent = "+" + fmtUsd(g7.sum);
-    const partial = !g1.exact || !g7.exact;
-    const since = Math.min(g1.since, g7.since);
-    $("gnote").textContent = !state.videos.length ? "" :
-      partial ? "Historia wyświetleń jest zapisywana od " +
-        (since < Infinity ? new Date(since * 1000).toLocaleString("pl-PL", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" }) : "teraz") +
-        ", więc starsze przyrosty doliczą się z czasem (filmy opublikowane w tym okresie liczą się w całości)."
-      : (state.rate ? "Razem w 7 dni ≈ " + fmtPln(g7.sum * state.rate) + "." : "");
+    $("range").hidden = period !== "custom";
+    chips($("periods"), periods, period, (id) => { period = id; store.set("period3", id); shown = PAGE; render(); });
+
+    const p = cur();
     const vids = state.videos.filter(inPeriod);
     const withBanner = vids.filter(v => v.banner === true);
     const paid = withBanner.filter(v => v.views >= MIN_VIEWS);
     const paidViews = paid.reduce((s, v) => s + v.views, 0);
     const usd = paid.reduce((s, v) => s + earn(v.views), 0);
+    const loaded = state.videos.length > 0;
 
-    $("usd").textContent = fmtUsd(usd);
-    $("pln").textContent = state.rate ? fmtPln(usd * state.rate) : "–";
-    $("rate").textContent = state.rate ? "1 $ = " + state.rate.toLocaleString("pl-PL", { minimumFractionDigits: 4 }) + " zł, " + state.rateDate.split("-").reverse().slice(0, 2).join(".") : "";
-    $("paid").textContent = paid.length + " z " + withBanner.length;
-    $("views").textContent = fmtInt(paidViews);
+    $("winLab").textContent = "Zarobek, " + p.long;
+    $("usd").textContent = loaded ? fmtUsd(usd) : "–";
+    $("pln").textContent = loaded && state.rate ? fmtPln(usd * state.rate) : "–";
+    const g1 = gain(24), g7 = gain(24 * 7);
+    $("g1").textContent = loaded ? "+" + fmtUsd(g1.sum) : "–";
+    $("g7").textContent = loaded ? "+" + fmtUsd(g7.sum) : "–";
+    const since = Math.min(g1.since, g7.since);
+    $("g7Sub").textContent = !loaded ? " " : (!g1.exact || !g7.exact)
+      ? "historia od " + (since < Infinity ? new Date(since * 1000).toLocaleDateString("pl-PL", { day: "numeric", month: "numeric" }) : "dziś") + ", będzie dokładniej"
+      : (state.rate ? "≈ " + fmtPln(g7.sum * state.rate) : " ");
+    $("paid").textContent = loaded ? paid.length + " z " + withBanner.length : "–";
+    $("paidSub").textContent = loaded ? "z banerem w tym okresie" : " ";
+    $("views").textContent = loaded ? fmtInt(paidViews) : "–";
+    const best = paid.slice().sort((a, b) => b.views - a.views)[0];
+    $("viewsSub").textContent = best ? "najlepszy: " + fmtInt(best.views) : " ";
+    $("rate").textContent = state.rate ? state.rate.toLocaleString("pl-PL", { minimumFractionDigits: 4 }) + " zł" : "–";
+    $("rateSub").textContent = state.rateDate ? "za 1 $, " + state.rateDate.split("-").reverse().slice(0, 2).join(".") : " ";
 
-    const pending = vids.filter(v => v.banner === null);
+    if (loaded) renderChart(vids);
+
+    // lista
+    const hidden = vids.filter(v => v.banner === null);
     const tabs = [
       { id: "banner", label: "Z banerem (" + withBanner.length + ")", items: withBanner },
       { id: "none", label: "Bez baneru (" + vids.filter(v => v.banner === false).length + ")", items: vids.filter(v => v.banner === false) },
-      { id: "pending", label: "Niesprawdzone (" + pending.length + ")", items: pending },
+      { id: "hidden", label: "Nie do sprawdzenia (" + hidden.length + ")", items: hidden },
     ];
     if (!tabs.some(t => t.id === tab)) tab = "banner";
-    $("tabs").innerHTML = "";
-    for (const t of tabs) {
-      const b = document.createElement("button");
-      b.className = "chip" + (t.id === tab ? " on" : "");
-      b.textContent = t.label;
-      b.onclick = () => { tab = t.id; store.set("tab", tab); shown = PAGE; render(); };
-      $("tabs").appendChild(b);
-    }
-
+    chips($("tabs"), tabs, tab, (id) => { tab = id; store.set("tab2", id); shown = PAGE; render(); });
+    $("legend").hidden = tab !== "banner";
     const items = tabs.find(t => t.id === tab).items.slice().sort((a, b) => (b.t || 0) - (a.t || 0));
     const list = $("list");
     list.innerHTML = "";
     if (!items.length) {
       const e = document.createElement("div");
       e.className = "empty";
-      e.textContent = state.videos.length ? "Brak filmów w tym okresie." : "Brak danych.";
+      e.textContent = !loaded ? "Wczytuję klipy…" : tab === "banner"
+        ? "W tym okresie nie ma klipów z banerem. Wybierz dłuższy okres."
+        : "Brak klipów w tym okresie.";
       list.appendChild(e);
     }
-    for (const v of items.slice(0, shown)) {
-      const a = document.createElement("a");
-      a.className = "item";
-      a.href = "https://www.tiktok.com/@369_shoter/video/" + v.id;
-      a.target = "_blank";
-      a.rel = "noopener";
-      const left = document.createElement("div");
-      left.style.minWidth = "0";
-      const t = document.createElement("div");
-      t.className = "t";
-      t.textContent = v.title || v.id;
-      const d = document.createElement("div");
-      d.className = "d";
-      d.textContent = fmtDate(v.t);
-      const tag = document.createElement("span");
-      if (v.banner === true) {
-        const ok = v.views >= MIN_VIEWS;
-        tag.className = "tag " + (ok ? "paid" : "low");
-        tag.textContent = ok ? "płatny" : "< 5000";
-      } else if (v.banner === null) {
-        tag.className = "tag err";
-        tag.textContent = v.error ? "TikTok blokuje pobranie" : "w kolejce";
-      }
-      if (v.manual) {
-        const m = document.createElement("span");
-        m.className = "tag man";
-        m.textContent = "ręcznie";
-        d.appendChild(m);
-      }
-      if (tag.className) d.appendChild(tag);
-      left.append(t, d);
-      const r = document.createElement("div");
-      r.className = "r";
-      const vb = document.createElement("b");
-      vb.textContent = fmtInt(v.views || 0);
-      const vs = document.createElement("span");
-      vs.textContent = v.banner === true ? fmtUsd(earn(v.views)) : "wyśw.";
-      r.append(vb, vs);
-      a.append(left, r);
-      list.appendChild(a);
-    }
+    for (const v of items.slice(0, shown)) list.appendChild(clipRow(v));
     $("more").hidden = items.length <= shown;
 
-    const parts = [];
-    if (state.updated) parts.push('<span class="dot"></span>Wyświetlenia: ' + ago(state.updated));
-    if (state.scanned) parts.push("bot sprawdził " + state.scanned + " filmów");
-    if (state.errors.length) parts.push('<span class="err">' + state.errors.join(" · ") + "</span>");
-    $("meta").innerHTML = parts.join(" · ");
+    // stan bota
+    const st = $("status");
+    st.classList.remove("loading", "ok", "warn", "bad");
+    if (state.botAt) {
+      const age = (Date.now() - state.botAt) / 60000;
+      st.classList.add(age < 40 ? "ok" : age < 180 ? "warn" : "bad");
+      $("statusText").textContent = "Bot: " + ago(state.botAt);
+      st.title = age < 40 ? "Dane są świeże. Kliknij, żeby wczytać ponownie." : "Bot dawno nie odświeżał danych. Zwykle robi to co ~12 minut.";
+    } else {
+      $("statusText").textContent = "Brak danych bota";
+      st.classList.add("bad");
+    }
+    $("error").hidden = !state.errors.length;
+    $("error").textContent = state.errors.length ? "Nie udało się wczytać: " + state.errors.join(", ") + ". Liczby mogą być niepełne. Spróbuj odświeżyć za chwilę." : "";
+
+    if (loaded && firstPaint) {
+      firstPaint = false;
+      const r = $("roulette");
+      r.classList.remove("spin"); void r.offsetWidth; r.classList.add("spin");
+    }
   }
 
+  // ---------- dane ----------
   async function getText(url) {
     const r = await fetch(url + (url.includes("?") ? "&" : "?") + "t=" + Date.now(), { cache: "no-store" });
     if (!r.ok) throw new Error(r.status);
     return r.text();
   }
 
+  let loading = false;
   async function load() {
-    const btn = $("refresh");
-    btn.disabled = true; btn.classList.add("loading");
+    if (loading) return;
+    loading = true;
+    $("status").classList.add("loading");
     const errors = [];
     const [live, banners, overrides, fresh, nbp] = await Promise.all([
-      getText(SOURCE).then(t => JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1))).catch(() => { errors.push("nie udało się pobrać listy filmów"); return null; }),
-      getText("data/banners.json").then(JSON.parse).catch(() => { errors.push("brak wyników bota"); return {}; }),
+      getText(SOURCE).then(t => JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1))).catch(() => { errors.push("listy filmów ze strony"); return null; }),
+      getText("data/banners.json").then(JSON.parse).catch(() => { errors.push("wyników bota"); return null; }),
       getText("data/overrides.json").then(JSON.parse).catch(() => ({})),
-      getText("data/views.json").then(JSON.parse).catch(() => ({ at: 0, v: {}, h: {} })),
-      fetch("https://api.nbp.pl/api/exchangerates/rates/a/usd/?format=json").then(r => r.json()).catch(() => { errors.push("brak kursu NBP"); return null; }),
+      getText("data/views.json").then(JSON.parse).catch(() => { errors.push("wyświetleń z bota"); return { at: 0, v: {}, h: {} }; }),
+      fetch("https://api.nbp.pl/api/exchangerates/rates/a/usd/?format=json").then(r => r.json()).catch(() => { errors.push("kursu NBP"); return null; }),
     ]);
 
     const map = new Map();
-    // najpierw to, co bot zapamiętał (także filmy, które wypadły z listy), potem świeże dane
-    for (const [id, e] of Object.entries(banners)) {
+    // najpierw to, co bot zapamiętał (także filmy, które wypadły z listy), potem lista ze strony
+    for (const [id, e] of Object.entries(banners || {})) {
       map.set(id, { id, title: e.title, t: e.t, views: e.views || 0,
-        banner: "banner" in e ? e.banner : null, error: e.error || null });
+        banner: "banner" in e ? e.banner : null, error: e.error || null, reason: e.reason || null });
     }
     for (const v of (live && live.videos) || []) {
       const prev = map.get(v.id) || { id: v.id, banner: null, error: null };
-      map.set(v.id, { ...prev, title: v.title, t: v.t || prev.t, views: Math.max(v.views || 0, prev.views || 0) });
+      map.set(v.id, { ...prev, title: v.title || prev.title, t: prev.t || v.t, lqip: v.lqip,
+        views: Math.max(v.views || 0, prev.views || 0) });
     }
-    // świeże wyświetlenia czytane przez bota prosto z TikToka (wyświetlenia nie maleją, więc bierzemy wyższą liczbę)
+    // świeże wyświetlenia czytane przez bota prosto z TikToka (nie maleją, więc bierzemy wyższą liczbę)
     for (const [id, n] of Object.entries(fresh.v || {})) {
       const v = map.get(id);
       if (v) v.views = Math.max(v.views || 0, n);
@@ -418,22 +561,27 @@
     for (const id of (overrides.baner || [])) { const v = map.get(String(id)); if (v) { v.banner = true; v.manual = true; } }
     for (const id of (overrides.bez_baneru || [])) { const v = map.get(String(id)); if (v) { v.banner = false; v.manual = true; } }
 
-    state = {
-      videos: [...map.values()],
-      rate: nbp && nbp.rates ? nbp.rates[0].mid : state.rate,
-      rateDate: nbp && nbp.rates ? nbp.rates[0].effectiveDate : state.rateDate,
-      updated: Math.max(fresh.at || 0, (live && live.at) || 0) * 1000 || null,
-      history: fresh.h || {},
-      scanned: Object.values(banners).filter(e => "banner" in e).length,
-      errors,
-    };
+    if (map.size || !state.videos.length) {
+      state = {
+        videos: [...map.values()],
+        rate: nbp && nbp.rates ? nbp.rates[0].mid : state.rate,
+        rateDate: nbp && nbp.rates ? nbp.rates[0].effectiveDate : state.rateDate,
+        botAt: fresh.at ? fresh.at * 1000 : null,
+        history: fresh.h || {},
+        errors,
+      };
+    } else {
+      state.errors = errors;
+    }
+    loading = false;
     render();
-    btn.disabled = false; btn.classList.remove("loading");
   }
 
-  $("refresh").onclick = load;
+  $("status").onclick = load;
   $("more").onclick = () => { shown += PAGE; render(); };
   document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
+  setInterval(() => { if (!document.hidden) load(); }, 5 * 60e3);
+  render();
   load();
 })();
 </script>

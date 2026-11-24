@@ -21,6 +21,7 @@ SCALE_STEP = 1.03           # kolejne sprawdzane szerokości różnią się o 3%
 MIN_SCORE = 0.80            # plus - minus (prawdziwe banery: >= 0.9, inne rzeczy: <= 0.81)
 MIN_PLUS = 0.85
 MAX_MINUS = 0.15
+NEAR_SCORE = 0.5            # od tego wyniku zapamiętujemy "prawie trafienia" (tylko do kontroli)
 MAX_INNER_V = 110           # mediana jasności wnętrza (baner: 30-60, ściany mapy itp.: 85-255)
 
 # zakresy HSV w OpenCV (H: 0-179)
@@ -73,8 +74,11 @@ def _widths(W):
     return out
 
 
-def find_banner(frame_bgr):
-    """Zwraca słownik z opisem znalezionego baneru albo None."""
+def find_banner(frame_bgr, near=None):
+    """Zwraca słownik z opisem znalezionego baneru albo None.
+
+    Jeśli podasz słownik `near`, trafi do niego najlepszy kandydat z ciemnym środkiem także poniżej progów
+    (do kontroli, czy jakiś baner nie umyka)."""
     h0, w0 = frame_bgr.shape[:2]
     if w0 != WORK_WIDTH:
         frame_bgr = cv2.resize(frame_bgr, (WORK_WIDTH, round(h0 * WORK_WIDTH / w0)), interpolation=cv2.INTER_AREA)
@@ -97,17 +101,20 @@ def find_banner(frame_bgr):
             sm = cv2.matchTemplate(m_in, minus, cv2.TM_CCORR)
             score = sp - sm
             _, val, _, (x, y) = cv2.minMaxLoc(score)
-            if val < MIN_SCORE:
+            if val < NEAR_SCORE:
                 continue
             p, n = float(sp[y, x]), float(sm[y, x])
-            if p < MIN_PLUS or n > MAX_MINUS:
-                continue
             # wnętrze baneru jest ciemne (kafelki z broniami na ciemnym tle)
             inner = hsv[y + ph // 5:y + ph - ph // 5, x + pw // 10:x + pw - pw // 10, 2]
             dark = float(np.median(inner))
             if dark > MAX_INNER_V:
                 continue
-            if best is None or val > best["score"]:
-                best = {"color": name, "score": round(float(val), 3), "plus": round(p, 3),
-                        "minus": round(n, 3), "v": round(dark), "box": [int(x), int(y), pw, ph]}
+            cand = {"color": name, "score": round(float(val), 3), "plus": round(p, 3),
+                    "minus": round(n, 3), "v": round(dark), "box": [int(x), int(y), pw, ph]}
+            ok = val >= MIN_SCORE and p >= MIN_PLUS and n <= MAX_MINUS
+            if ok and (best is None or val > best["score"]):
+                best = cand
+            if near is not None and (near.get("score", 0) < val):
+                near.clear()
+                near.update(cand)
     return best
