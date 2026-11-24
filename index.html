@@ -9,6 +9,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Klipometr">
 <title>Klipometr</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='3' y='14' width='58' height='36' rx='7' fill='%23121722' stroke='%233fb6e8' stroke-width='5'/><path d='M24 14h16l-8 11zM24 50h16l-8-11z' fill='%233fb6e8'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -77,6 +80,19 @@
   .status.bad .dot { background: var(--bad); }
   .status.loading .dot { animation: pulse 1s ease-in-out infinite; }
   @keyframes pulse { 50% { opacity: .3; } }
+
+  /* instalacja aplikacji */
+  .install {
+    display: flex; align-items: center; gap: 12px; margin: 0 0 14px; padding: 10px 10px 10px 12px; border-radius: 12px;
+    border: 1px solid #2f4a63; background: linear-gradient(90deg, rgba(63,182,232,.14), rgba(63,182,232,.04));
+    animation: rise .4s cubic-bezier(.2,.8,.2,1) both;
+  }
+  .install[hidden] { display: none; }
+  .install img { width: 36px; height: 36px; border-radius: 9px; flex: none; }
+  .install .it { flex: 1; min-width: 0; font-size: 14px; line-height: 1.3; }
+  .install .it b { display: block; font-size: 15px; }
+  .install .it span { color: var(--muted); }
+  .install .x { border: 0; background: none; color: var(--muted); font-size: 20px; line-height: 1; padding: 6px; cursor: pointer; }
 
   /* okresy */
   .periods { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 4px -16px 0; padding: 0 16px 2px; }
@@ -171,6 +187,46 @@
   h2 { font-size: 18px; font-weight: 700; margin: 30px 0 10px; }
   .hint { color: var(--muted); font-size: 13px; margin: -6px 0 10px; }
 
+  /* wypłaty */
+  .pay { margin-top: 30px; }
+  .pay h2 { margin: 0 0 12px; }
+  .paysum { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .paysum > div { background: var(--bg2); padding: 12px 14px; min-width: 0; }
+  .paysum .lab { font-size: 13px; color: var(--muted); }
+  .paysum .val { font-size: 20px; font-weight: 600; white-space: nowrap; }
+  .paysum .due { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: radial-gradient(80% 140% at 100% 50%, rgba(228,174,57,.16), transparent 70%), var(--bg2); }
+  .paysum .due .val { font-size: 30px; font-weight: 700; color: var(--gold); }
+  .paysum .due .sub { font-size: 13px; color: var(--muted); }
+  .btn2 {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #46557a; background: var(--tile2);
+    color: var(--text); font-weight: 600; font-size: 15px; padding: 10px 14px; border-radius: 9px; cursor: pointer;
+    transition: transform .12s ease, background-color .2s;
+  }
+  .btn2:active { transform: scale(.97); }
+  .btn2.gold { background: var(--gold); border-color: var(--gold); color: #1b1608; }
+  .btn2.ghost { background: transparent; border-color: var(--line); color: var(--muted); }
+  .payadd { margin-top: 12px; width: 100%; }
+  .payform { margin-top: 12px; padding: 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg2); display: grid; gap: 10px; }
+  .payform[hidden] { display: none; }
+  .payform .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .payform label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); min-width: 0; }
+  .payform input { font-size: 16px; background: var(--tile); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; width: 100%; min-width: 0; color: var(--text); }
+  .payform input:focus { border-color: var(--frame); }
+  .payform .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .payform .acts .btn2 { flex: 1; }
+  .payform .how { font-size: 13px; color: var(--muted); line-height: 1.45; }
+  .payform .err { font-size: 13px; color: #ff8a8a; }
+  .payform .err:empty { display: none; }
+  .paylist { display: grid; gap: 6px; margin-top: 12px; }
+  .payrow { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; padding: 10px 12px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--line); }
+  .payrow .pd { font-size: 14px; }
+  .payrow .pn { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .payrow .pa { text-align: right; font-weight: 600; white-space: nowrap; }
+  .payrow .pa small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+  .payrow a { color: var(--muted); font-size: 12px; }
+  .payrow.pending { border-style: dashed; opacity: .8; }
+
   /* wykres tydzień po tygodniu */
   .wk { margin-top: 30px; }
   .wk h2 { margin: 0 0 12px; }
@@ -258,6 +314,13 @@
     <button class="status loading" id="status" type="button" title="Odśwież dane"><span class="dot"></span><span id="statusText">Wczytuję…</span></button>
   </header>
 
+  <div class="install" id="install" hidden>
+    <img src="icons/icon-192.png" alt="">
+    <div class="it"><b>Zainstaluj Klipometr</b><span id="installHint">Ikona na ekranie głównym, pełny ekran, działa też bez internetu.</span></div>
+    <button class="btn2 gold" type="button" id="installBtn">Zainstaluj</button>
+    <button class="x" type="button" id="installClose" aria-label="Ukryj">×</button>
+  </div>
+
   <div class="periods" id="periods" role="group" aria-label="Filmy opublikowane w okresie"></div>
   <div class="range" id="range" hidden>
     <label>Od <input type="date" id="from"></label>
@@ -281,6 +344,33 @@
     <div class="stat"><div class="lab">Kurs NBP</div><div class="val num" id="rate">–</div><div class="sub" id="rateSub">&nbsp;</div></div>
   </div>
   <div class="error" id="error" hidden></div>
+
+  <section class="pay" id="pay">
+    <h2>Wypłaty</h2>
+    <div class="paysum">
+      <div><div class="lab">Zarobione łącznie</div><div class="val num" id="payEarned">–</div></div>
+      <div><div class="lab">Wypłacone</div><div class="val num" id="payPaid">–</div></div>
+      <div class="due"><div><div class="lab">Do wypłaty</div><div class="sub num" id="payDuePln">&nbsp;</div></div><div class="val num" id="payDue">–</div></div>
+    </div>
+    <button class="btn2 payadd" id="payAdd" type="button">+ Dodaj wypłatę</button>
+    <form class="payform" id="payForm" hidden novalidate>
+      <div class="row2">
+        <label>Data <input type="date" id="payDate" required></label>
+        <label>Kwota w $ <input type="text" inputmode="decimal" id="payUsd" placeholder="np. 120,50" autocomplete="off" required></label>
+      </div>
+      <div class="row2">
+        <label>Dostałeś w zł (opcjonalnie) <input type="text" inputmode="decimal" id="payPln" placeholder="np. 489,90" autocomplete="off"></label>
+        <label>Notatka (opcjonalnie) <input type="text" id="payNote" maxlength="120" placeholder="np. PayPal" autocomplete="off"></label>
+      </div>
+      <div class="err" id="payErr"></div>
+      <div class="acts">
+        <button class="btn2 gold" type="submit">Zapisz na GitHubie</button>
+        <button class="btn2 ghost" type="button" id="payCancel">Anuluj</button>
+      </div>
+      <div class="how">Otworzy się GitHub z gotowym wpisem. Kliknij tam zielone <b>Commit changes</b>. Wypłata pojawi się tu na wszystkich urządzeniach po około minucie.</div>
+    </form>
+    <div class="paylist" id="payList"></div>
+  </section>
 
   <section class="wk">
     <h2>Tydzień po tygodniu</h2>
@@ -410,7 +500,7 @@
   if (!periods.some(p => p.id === period)) period = "d7";
   let tab = store.get("tab2", "banner");
   let shown = PAGE;
-  let state = { videos: [], rate: null, rateDate: null, botAt: null, history: {}, errors: [] };
+  let state = { videos: [], rate: null, rateDate: null, botAt: null, history: {}, payouts: [], errors: [] };
   let firstPaint = true;
   let animateList = true;
 
@@ -730,6 +820,7 @@
     $("rateSub").textContent = state.rateDate ? "za 1 $, " + state.rateDate.split("-").reverse().slice(0, 2).join(".") : " ";
 
     if (loaded) renderChart();
+    renderPayouts();
 
     // lista
     const hidden = vids.filter(v => v.banner === null);
@@ -783,6 +874,95 @@
     }
   }
 
+  // ---------- wypłaty ----------
+  const REPO = "tymonekk/klipometr";
+  const parseAmount = (str) => { const x = parseFloat(String(str).trim().replace(/\s/g, "").replace(",", ".")); return isFinite(x) ? x : NaN; };
+  // wypłaty wysłane z tego urządzenia, których GitHub jeszcze nie opublikował
+  function pendingPayouts() {
+    try { return JSON.parse(store.get("payPending", "[]")) || []; } catch { return []; }
+  }
+  function savePending(list) { store.set("payPending", JSON.stringify(list)); }
+
+  function renderPayouts() {
+    const loaded = state.videos.length > 0;
+    const known = new Set(state.payouts.map(p => p.id));
+    const pend = pendingPayouts().filter(p => !known.has(p.id) && Date.now() - Number(p.id) < 2 * 86400e3);
+    savePending(pend);
+    const all = [...pend.map(p => ({ ...p, pending: true })), ...state.payouts];
+    const earned = state.videos.filter(v => v.banner === true).reduce((a, v) => a + earn(v.views), 0);
+    const paid = all.reduce((a, p) => a + p.usd, 0);
+    const due = earned - paid;
+    if (loaded) {
+      tween($("payEarned"), earned, fmtUsd, 700);
+      tween($("payPaid"), paid, fmtUsd, 700);
+      tween($("payDue"), due, fmtUsd, 900);
+      $("payDuePln").textContent = state.rate ? "≈ " + fmtPln(due * state.rate) : "\u00a0";
+    }
+    const list = $("payList");
+    list.innerHTML = "";
+    for (const p of all) {
+      const row = document.createElement("div");
+      row.className = "payrow" + (p.pending ? " pending" : "");
+      const left = document.createElement("div");
+      left.style.minWidth = "0";
+      const d = document.createElement("div");
+      d.className = "pd";
+      d.textContent = new Date(p.date + "T12:00:00").toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" });
+      const n = document.createElement("div");
+      n.className = "pn";
+      if (p.pending) n.textContent = "czeka na zapis na GitHubie" + (p.note ? " · " + p.note : "");
+      else {
+        n.textContent = p.note ? p.note + " " : "";
+        const a = document.createElement("a");
+        a.href = "https://github.com/" + REPO + "/blob/main/data/payouts/" + p.id + ".json";
+        a.target = "_blank"; a.rel = "noopener";
+        a.textContent = "zmień / usuń";
+        a.title = "Na GitHubie: ikona ołówka zmienia, menu ⋯ → Delete file usuwa";
+        n.appendChild(a);
+      }
+      left.append(d, n);
+      const amt = document.createElement("div");
+      amt.className = "pa num";
+      amt.textContent = fmtUsd(p.usd);
+      if (p.pln) { const sm = document.createElement("small"); sm.textContent = fmtPln(p.pln); amt.appendChild(sm); }
+      row.append(left, amt);
+      list.appendChild(row);
+    }
+  }
+
+  $("payAdd").onclick = () => {
+    $("payForm").hidden = false;
+    $("payAdd").hidden = true;
+    if (!$("payDate").value) $("payDate").value = isoDay(new Date());
+    $("payErr").textContent = "";
+    $("payUsd").focus();
+  };
+  $("payCancel").onclick = () => { $("payForm").hidden = true; $("payAdd").hidden = false; };
+  $("payForm").onsubmit = (e) => {
+    e.preventDefault();
+    const date = $("payDate").value;
+    const usd = parseAmount($("payUsd").value);
+    const plnRaw = $("payPln").value.trim();
+    const pln = plnRaw ? parseAmount(plnRaw) : null;
+    const note = $("payNote").value.trim();
+    if (!date) { $("payErr").textContent = "Wybierz datę wypłaty."; return; }
+    if (!(usd > 0)) { $("payErr").textContent = "Wpisz kwotę w dolarach, np. 120,50."; $("payUsd").focus(); return; }
+    if (plnRaw && !(pln > 0)) { $("payErr").textContent = "Kwota w złotówkach jest niepoprawna, np. 489,90 (albo zostaw puste)."; return; }
+    const id = String(Date.now());
+    const entry = { date, usd: Math.round(usd * 100) / 100 };
+    if (pln) entry.pln = Math.round(pln * 100) / 100;
+    if (note) entry.note = note;
+    const body = JSON.stringify(entry, null, 1) + "\n";
+    const url = "https://github.com/" + REPO + "/new/main?filename=" + encodeURIComponent("data/payouts/" + id + ".json") +
+      "&value=" + encodeURIComponent(body);
+    savePending([...pendingPayouts(), { id, ...entry }]);
+    window.open(url, "_blank", "noopener");
+    $("payForm").reset();
+    $("payForm").hidden = true;
+    $("payAdd").hidden = false;
+    renderPayouts();
+  };
+
   // ---------- dane ----------
   async function getText(url) {
     const r = await fetch(url + (url.includes("?") ? "&" : "?") + "t=" + Date.now(), { cache: "no-store" });
@@ -796,12 +976,13 @@
     loading = true;
     $("status").classList.add("loading");
     const errors = [];
-    const [live, banners, overrides, fresh, nbp] = await Promise.all([
+    const [live, banners, overrides, fresh, nbp, payouts] = await Promise.all([
       getText(SOURCE).then(t => JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1))).catch(() => { errors.push("listy filmów ze strony"); return null; }),
       getText("data/banners.json").then(JSON.parse).catch(() => { errors.push("wyników bota"); return null; }),
       getText("data/overrides.json").then(JSON.parse).catch(() => ({})),
       getText("data/views.json").then(JSON.parse).catch(() => { errors.push("wyświetleń z bota"); return { at: 0, v: {}, h: {} }; }),
       fetch("https://api.nbp.pl/api/exchangerates/rates/a/usd/?format=json").then(r => r.json()).catch(() => { errors.push("kursu NBP"); return null; }),
+      getText("data/payouts.json").then(JSON.parse).catch(() => null),
     ]);
 
     const map = new Map();
@@ -830,6 +1011,7 @@
         rateDate: nbp && nbp.rates ? nbp.rates[0].effectiveDate : state.rateDate,
         botAt: fresh.at ? fresh.at * 1000 : null,
         history: fresh.h || {},
+        payouts: Array.isArray(payouts) ? payouts : state.payouts,
         errors,
       };
     } else {
@@ -837,6 +1019,38 @@
     }
     loading = false;
     render();
+  }
+
+  // ---------- instalacja jako aplikacja (Android: Chrome; iPhone: Safari → Udostępnij) ----------
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  }
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  let installEvt = null;
+  const installHidden = () => store.get("installHidden", "") === "1";
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    installEvt = e;
+    if (!standalone && !installHidden()) $("install").hidden = false;
+  });
+  window.addEventListener("appinstalled", () => { $("install").hidden = true; installEvt = null; });
+  $("installBtn").onclick = async () => {
+    if (installEvt) {
+      installEvt.prompt();
+      const choice = await installEvt.userChoice.catch(() => null);
+      installEvt = null;
+      if (choice && choice.outcome === "accepted") $("install").hidden = true;
+    } else {
+      $("installHint").textContent = "W menu przeglądarki (⋮) wybierz „Zainstaluj aplikację” albo „Dodaj do ekranu głównego”.";
+    }
+  };
+  $("installClose").onclick = () => { $("install").hidden = true; store.set("installHidden", "1"); };
+  // iPhone nie ma przycisku instalacji: pokazujemy podpowiedź
+  const iOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (iOS && !standalone && !installHidden()) {
+    $("install").hidden = false;
+    $("installBtn").hidden = true;
+    $("installHint").textContent = "W Safari stuknij Udostępnij, potem „Do ekranu początkowego”.";
   }
 
   $("status").onclick = load;

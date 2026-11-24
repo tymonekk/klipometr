@@ -81,7 +81,8 @@ jobs:
       - name: Złóż stronę
         run: |
           mkdir _site
-          cp -r index.html data _site/
+          cp -r index.html data manifest.webmanifest sw.js icons _site/
+          python scripts/payouts.py _site/data/payouts.json
           touch _site/.nojekyll
 
       - uses: actions/upload-pages-artifact@v3
