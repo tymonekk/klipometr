@@ -1,71 +1,73 @@
 {
  "7711731853224561959": {
   "banner": false,
-  "at": 1795535929,
+  "at": 1795537700,
   "frames": 21,
   "title": "Emerald stracił 3 tysiące w jeden dzień. Kupilibyście teraz?",
-  "views": 3770,
+  "views": 3893,
   "t": 1795534210
  },
  "7711453835922853153": {
   "banner": false,
-  "at": 1795534683,
+  "at": 1795537710,
   "frames": 56,
+  "near": 0.54,
+  "near_sec": 33,
   "title": "Klucz do internetu w 2026. Znacie lepszy?",
-  "views": 3054,
+  "views": 3121,
   "t": 1795522550
  },
  "7711453643978853664": {
   "banner": false,
-  "at": 1795534687,
+  "at": 1795537713,
   "frames": 21,
   "title": "Jak zbaitować 369",
-  "views": 2207,
+  "views": 2219,
   "t": 1795510829
  },
  "7711453552362655009": {
   "banner": false,
-  "at": 1795534691,
+  "at": 1795537715,
   "frames": 19,
   "title": "1 na 1 z glocka na bieżni",
-  "views": 30800,
+  "views": 31000,
   "t": 1795499112
  },
  "7711453171914198304": {
   "banner": false,
-  "at": 1795534694,
+  "at": 1795537719,
   "frames": 13,
   "title": "Gwiazda meczu prosto z Donbasu",
-  "views": 2443,
+  "views": 2448,
   "t": 1795487438
  },
  "7711453002296479009": {
   "banner": false,
-  "at": 1795534698,
+  "at": 1795537721,
   "frames": 11,
   "title": "Najlepsza myszka za 150 zł",
-  "views": 15100,
+  "views": 15300,
   "t": 1795475746
  },
  "7711452823585639712": {
   "banner": false,
-  "at": 1795534702,
+  "at": 1795537724,
   "frames": 28,
   "title": "Attack Shark jak naszyjnik ze złomu. Zgadzacie się?",
-  "views": 53800,
+  "views": 54200,
   "t": 1795464320
  },
  "7711125607492455712": {
   "banner": false,
-  "at": 1795534706,
+  "at": 1795537730,
   "frames": 50,
   "title": "Simkowi laguje komp za 20 tysięcy",
-  "views": 39400,
+  "views": 39600,
   "t": 1795449624
  },
  "7711125173562281249": {
   "banner": false,
-  "at": 1795534709,
+  "at": 1795537733,
   "frames": 18,
   "title": "5 level Faceita na 500 godzin. Ile wy macie godzin?",
   "views": 39600,
@@ -73,7 +75,7 @@
  },
  "7711125062388075808": {
   "banner": false,
-  "at": 1795534712,
+  "at": 1795537735,
   "frames": 12,
   "title": "369 o teorii spiskowej Valve. Wierzycie w to?",
   "views": 20600,
@@ -81,7 +83,7 @@
  },
  "7711124895891033376": {
   "banner": false,
-  "at": 1795534716,
+  "at": 1795537739,
   "frames": 27,
   "title": "369 nie gra 1 na 1 z widzami. Zagralibyście z nim?",
   "views": 51900,
@@ -89,7 +91,7 @@
  },
  "7711124511327898913": {
   "banner": false,
-  "at": 1795534721,
+  "at": 1795537744,
   "frames": 25,
   "title": "369 wkurza się na Kicka",
   "views": 1472,
@@ -97,7 +99,7 @@
  },
  "7711124372370640160": {
   "banner": false,
-  "at": 1795534728,
+  "at": 1795537752,
   "frames": 48,
   "title": "369 miażdży Attack Sharka. Macie coś od nich?",
   "views": 33700,
@@ -105,7 +107,7 @@
  },
  "7711041336819895584": {
   "banner": false,
-  "at": 1795534734,
+  "at": 1795537760,
   "frames": 72,
   "title": "Opinia o GTA 6",
   "views": 7148,
@@ -113,7 +115,7 @@
  },
  "7710717551478607137": {
   "banner": false,
-  "at": 1795534746,
+  "at": 1795537774,
   "frames": 73,
   "title": "369 pokazuje swoją aim rutynę",
   "views": 19000,
@@ -121,8 +123,10 @@
  },
  "7710717433811619104": {
   "banner": false,
-  "at": 1795534753,
+  "at": 1795537780,
   "frames": 39,
+  "near": 0.528,
+  "near_sec": 34,
   "title": "369 wyśmiewa szklane podkładki. Gracie na szklanej?",
   "views": 46700,
   "t": 1795338035
@@ -145,7 +149,7 @@
  },
  "7710640186241207584": {
   "banner": false,
-  "at": 1795534766,
+  "at": 1795537787,
   "frames": 35,
   "title": "369 o kidosach broniących scamu",
   "views": 17800,
@@ -153,23 +157,27 @@
  },
  "7710639888550350112": {
   "banner": false,
-  "at": 1795534778,
+  "at": 1795537804,
   "frames": 85,
+  "near": 0.564,
+  "near_sec": 25,
   "title": "Najlepszy sprzęt 2026 według 369",
   "views": 52600,
   "t": 1795282238
  },
  "7710344681887976736": {
   "banner": false,
-  "at": 1795534783,
+  "at": 1795537810,
   "frames": 29,
+  "near": 0.589,
+  "near_sec": 16,
   "title": "Simek gra w CS-a jak w szachy",
   "views": 11200,
   "t": 1795274704
  },
  "7710344496038415648": {
   "banner": false,
-  "at": 1795534789,
+  "at": 1795537816,
   "frames": 30,
   "title": "Simek podnosi 369 ciśnienie",
   "views": 2836,
@@ -177,7 +185,7 @@
  },
  "7710344025349410081": {
   "banner": false,
-  "at": 1795534794,
+  "at": 1795537821,
   "frames": 32,
   "title": "W internecie wygrywają najgorsi",
   "views": 1459,
@@ -185,7 +193,7 @@
  },
  "7710277862569364768": {
   "banner": false,
-  "at": 1795534803,
+  "at": 1795537831,
   "frames": 92,
   "title": "369 się zmienił od momentu wybicia się",
   "views": 1648,
@@ -193,7 +201,7 @@
  },
  "7710204412932705568": {
   "banner": false,
-  "at": 1795534807,
+  "at": 1795537836,
   "frames": 38,
   "title": "369 o programach na FPS-y",
   "views": 50300,
@@ -201,7 +209,7 @@
  },
  "7709960841231076641": {
   "banner": false,
-  "at": 1795534811,
+  "at": 1795537840,
   "frames": 28,
   "title": "Bootcamp 369 z Mamm0nem odwołany",
   "views": 2879,
@@ -212,66 +220,73 @@
   "views": 509,
   "t": 1795068000,
   "error": "ERROR: [TikTok] 7709617034320989462: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537841
  },
  "7709616409449352470": {
   "banner": true,
-  "at": 1795534819,
+  "at": 1795537850,
   "frames": 48,
   "sec": 20,
   "hits": 4,
   "color": "niebieski",
   "title": "369 porównał CS2 do GTA 6",
   "views": 24100,
-  "t": 1795034957
+  "t": 1795034957,
+  "t_src": "page"
  },
  "7709615294846602518": {
   "banner": true,
-  "at": 1795534823,
+  "at": 1795537872,
   "frames": 106,
   "sec": 34,
   "hits": 3,
   "color": "niebieski",
   "title": "Ulubiona mapa 369",
-  "views": 65800,
-  "t": 1795111200
+  "views": 66000,
+  "t": 1795111200,
+  "t_src": "page"
  },
  "7709614962976607510": {
   "banner": true,
-  "at": 1795534827,
+  "at": 1795537877,
   "frames": 29,
   "sec": 11,
   "hits": 3,
   "color": "niebieski",
   "title": "369 nie przeleje ci na kartę graficzną",
   "views": 1470,
-  "t": 1795100400
+  "t": 1795100400,
+  "t_src": "page"
  },
  "7709614621119794454": {
   "banner": true,
-  "at": 1795534832,
+  "at": 1795537883,
   "frames": 30,
   "sec": 15,
   "hits": 3,
   "color": "niebieski",
   "title": "Jak przejść z Valoranta na CS-a?",
   "views": 22400,
-  "t": 1795089600
+  "t": 1795089600,
+  "t_src": "page"
  },
  "7709614458162793750": {
   "banner": true,
-  "at": 1795534838,
+  "at": 1795537892,
   "frames": 69,
   "sec": 29,
   "hits": 4,
   "color": "niebieski",
   "title": "369 o nowym Cobblestonie",
-  "views": 3003,
-  "t": 1795078800
+  "views": 3013,
+  "t": 1795078800,
+  "t_src": "page"
  },
  "7709525541799349537": {
   "banner": false,
-  "at": 1795534843,
+  "at": 1795537901,
   "frames": 76,
   "title": "Stan polskiej muzyki w 2026",
   "views": 12400,
@@ -282,209 +297,244 @@
   "views": 471,
   "t": 1795057200,
   "error": "ERROR: [TikTok] 7709525471888788758: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537902
  },
  "7709251470444514582": {
   "title": "369 ma 2000 osób w kolejce po podpis",
   "views": 600,
   "t": 1795046400,
   "error": "ERROR: [TikTok] 7709251470444514582: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537903
  },
  "7709251265095634198": {
   "banner": true,
-  "at": 1795534850,
+  "at": 1795537907,
   "frames": 21,
   "sec": 12,
   "hits": 3,
   "color": "niebieski",
   "title": "369 gra tylko na Faceicie",
   "views": 15700,
-  "t": 1795024800
+  "t": 1795024800,
+  "t_src": "page"
  },
  "7709250507075783958": {
   "title": "369 o upadku freak fightów",
   "views": 730,
   "t": 1794992400,
   "error": "ERROR: [TikTok] 7709250507075783958: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537908
  },
  "7709250196361727254": {
   "banner": true,
-  "at": 1795534857,
+  "at": 1795537916,
   "frames": 54,
   "sec": 31,
   "hits": 3,
   "color": "niebieski",
   "title": "Messi czy Ronaldo?",
-  "views": 8436,
-  "t": 1794981600
+  "views": 8449,
+  "t": 1794981600,
+  "t_src": "page"
  },
  "7709249985069485334": {
   "title": "369 o gta 6",
   "views": 360,
   "t": 1794970800,
   "error": "ERROR: [TikTok] 7709249985069485334: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537918
  },
  "7709249399783804182": {
   "banner": true,
-  "at": 1795534863,
+  "at": 1795537924,
   "frames": 23,
   "sec": 12,
   "hits": 4,
   "color": "niebieski",
   "title": "Izak zdradził Polskę i żonę",
-  "views": 1672,
-  "t": 1794960000
+  "views": 1673,
+  "t": 1794960000,
+  "t_src": "page"
  },
  "7709247707486981409": {
   "banner": true,
-  "at": 1795534867,
+  "at": 1795537929,
   "frames": 37,
   "sec": 20,
   "hits": 4,
   "color": "niebieski",
   "title": "Cobblestone wraca do CS2?",
   "views": 20800,
-  "t": 1794949111
+  "t": 1794949111,
+  "t_src": "page"
  },
  "7708909642142862624": {
   "banner": true,
-  "at": 1795534870,
+  "at": 1795537932,
   "frames": 21,
   "sec": 8,
   "hits": 3,
   "color": "niebieski",
   "title": "369 kupi auto dzięki hejterom",
   "views": 2413,
-  "t": 1794942011
+  "t": 1794942011,
+  "t_src": "page"
  },
  "7708909380950936864": {
   "title": "369 o nagrodach dla widzów",
   "views": 830,
   "t": 1794936920,
   "error": "ERROR: [TikTok] 7708909380950936864: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537933
  },
  "7708909115107462432": {
   "title": "369 o ocenach w szkole",
   "views": 3015,
   "t": 1794929649,
   "error": "ERROR: [TikTok] 7708909115107462432: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537934
  },
  "7708908878448069921": {
   "title": "369 o zdradzie Izaka",
   "views": 2032,
   "t": 1794921022,
   "error": "ERROR: [TikTok] 7708908878448069921: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537935
  },
  "7708908718565510433": {
   "banner": true,
-  "at": 1795534881,
+  "at": 1795537946,
   "frames": 73,
   "sec": 36,
   "hits": 4,
   "color": "niebieski",
   "title": "369 przeprowadzi się dla serwera Faceita",
   "views": 22500,
-  "t": 1794915165
+  "t": 1794915165,
+  "t_src": "page"
  },
  "7708908615800900896": {
   "title": "369 wróci na Twitcha?",
   "views": 1921,
   "t": 1794909013,
   "error": "ERROR: [TikTok] 7708908615800900896: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537946
  },
  "7708908418764950817": {
   "title": "Tusk z Izakiem manipulują Faceitem",
   "views": 749,
   "t": 1794903624,
   "error": "ERROR: [TikTok] 7708908418764950817: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537948
  },
  "7708908177651289377": {
   "title": "369 dostał granatem od swojego",
   "views": 1189,
   "t": 1794896791,
   "error": "ERROR: [TikTok] 7708908177651289377: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537949
  },
  "7708907735177350433": {
   "title": "S1mek sprzedał rundę za 5 zł",
   "views": 1100,
   "t": 1794891600,
   "error": "ERROR: [TikTok] 7708907735177350433: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537950
  },
  "7708907632777514272": {
   "banner": true,
-  "at": 1795534891,
+  "at": 1795537956,
   "frames": 31,
   "sec": 10,
   "hits": 4,
   "color": "niebieski",
   "title": "369 ma ferie od Mamm0na",
-  "views": 8762,
-  "t": 1794886106
+  "views": 8763,
+  "t": 1794886106,
+  "t_src": "page"
  },
  "7708907594840018209": {
   "banner": true,
-  "at": 1795534897,
+  "at": 1795537965,
   "frames": 81,
   "sec": 40,
   "hits": 3,
   "color": "niebieski",
   "title": "Morawiecki dodał TikToka z Izakiem",
-  "views": 172800,
-  "t": 1794878854
+  "views": 172900,
+  "t": 1794878854,
+  "t_src": "page"
  },
  "7708907304845937952": {
   "title": "369 chce Mercedesa za 550 tysięcy",
   "views": 2166,
   "t": 1794875234,
   "error": "ERROR: [TikTok] 7708907304845937952: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795537966
  },
  "7708907160800972064": {
   "banner": true,
-  "at": 1795534903,
+  "at": 1795537971,
   "frames": 38,
   "sec": 17,
   "hits": 4,
   "color": "niebieski",
   "title": "369 nie będzie grał z Mamm0nem dla liczb",
   "views": 7517,
-  "t": 1794869823
+  "t": 1794869823,
+  "t_src": "page"
  },
  "7708814809122311456": {
   "banner": true,
-  "at": 1795534906,
+  "at": 1795537975,
   "frames": 17,
   "sec": 9,
   "hits": 3,
   "color": "niebieski",
   "title": "369 o młodych streamerach",
-  "views": 7578,
-  "t": 1794855623
+  "views": 7585,
+  "t": 1794855623,
+  "t_src": "page"
  },
  "7708767987532057889": {
   "banner": true,
-  "at": 1795534915,
+  "at": 1795537986,
   "frames": 51,
   "sec": 24,
   "hits": 4,
   "color": "niebieski",
   "title": "Kosa za 300 koła to budżetówka?",
   "views": 44400,
-  "t": 1794846056
+  "t": 1794846056,
+  "t_src": "page"
  },
  "7708483429595172129": {
   "banner": false,
-  "at": 1795534919,
+  "at": 1795537990,
   "frames": 21,
   "title": "369 o Donaldzie Tusku",
   "views": 6071,
@@ -492,7 +542,7 @@
  },
  "7708413353126923552": {
   "banner": false,
-  "at": 1795534923,
+  "at": 1795537995,
   "frames": 31,
   "title": "369 dostaje myszki przed premierą",
   "views": 16100,
@@ -500,23 +550,27 @@
  },
  "7708157281950534945": {
   "banner": false,
-  "at": 1795534928,
+  "at": 1795537999,
   "frames": 20,
+  "near": 0.624,
+  "near_sec": 17,
   "title": "369 zarobił 1 centa na TikToku",
   "views": 5168,
   "t": 1794749453
  },
  "7708156939598875937": {
   "banner": false,
-  "at": 1795534933,
+  "at": 1795538005,
   "frames": 22,
+  "near": 0.65,
+  "near_sec": 13,
   "title": "369 o tym jak zostać shoterem",
   "views": 26400,
   "t": 1794738622
  },
  "7708156779036675361": {
   "banner": false,
-  "at": 1795534936,
+  "at": 1795538008,
   "frames": 16,
   "title": "Jak długo w CS2 gra 369?",
   "views": 20500,
@@ -524,7 +578,7 @@
  },
  "7708156708610215200": {
   "banner": false,
-  "at": 1795534941,
+  "at": 1795538013,
   "frames": 23,
   "title": "369 o Izaku i szefie NVIDII",
   "views": 17200,
@@ -532,7 +586,7 @@
  },
  "7708156475620773153": {
   "banner": false,
-  "at": 1795534946,
+  "at": 1795538019,
   "frames": 45,
   "title": "369 o tym ile płaci shoterom",
   "views": 17800,
@@ -540,7 +594,7 @@
  },
  "7707990501999283478": {
   "banner": false,
-  "at": 1795534949,
+  "at": 1795538024,
   "frames": 28,
   "title": "369 oddaje widzom 1/3 zarobków",
   "views": 25100,
@@ -548,7 +602,7 @@
  },
  "7707718897876667680": {
   "banner": false,
-  "at": 1795534952,
+  "at": 1795538027,
   "frames": 14,
   "title": "369 i headzior wbili 10 level w 10 dni",
   "views": 9463,
@@ -556,7 +610,7 @@
  },
  "7707397967514275105": {
   "banner": false,
-  "at": 1795534960,
+  "at": 1795538034,
   "frames": 39,
   "title": "369 i headzior o lekkich myszkach",
   "views": 23900,
@@ -564,15 +618,17 @@
  },
  "7707397758310681889": {
   "banner": false,
-  "at": 1795534964,
+  "at": 1795538039,
   "frames": 34,
+  "near": 0.52,
+  "near_sec": 23,
   "title": "369 o cheaterach na premierze",
   "views": 48400,
   "t": 1794544215
  },
  "7707397715998608673": {
   "banner": false,
-  "at": 1795534973,
+  "at": 1795538048,
   "frames": 73,
   "title": "369 o największych ikonach cs w polsce",
   "views": 41100,
@@ -580,7 +636,7 @@
  },
  "7707393174284832032": {
   "banner": false,
-  "at": 1795534980,
+  "at": 1795538055,
   "frames": 51,
   "title": "369 kupił kosę pod inwestycję",
   "views": 52300,
@@ -596,7 +652,7 @@
  },
  "7707026773954874657": {
   "banner": false,
-  "at": 1795534990,
+  "at": 1795538061,
   "frames": 35,
   "title": "369 rzucił studia dla streamowania",
   "views": 3677,
@@ -607,11 +663,13 @@
   "views": 1647,
   "t": 1794403437,
   "error": "ERROR: [TikTok] 7706904057855626518: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795538062
  },
  "7706704882543168800": {
   "banner": false,
-  "at": 1795534997,
+  "at": 1795538069,
   "frames": 43,
   "title": "369 ma najgorszy dzień w cs-ie",
   "views": 3141,
@@ -619,15 +677,17 @@
  },
  "7706704044441554208": {
   "banner": false,
-  "at": 1795535003,
+  "at": 1795538077,
   "frames": 39,
+  "near": 0.585,
+  "near_sec": 3,
   "title": "369 nie bierze donate'ów od widzów",
   "views": 30100,
   "t": 1794386446
  },
  "7706703441640361248": {
   "banner": false,
-  "at": 1795535009,
+  "at": 1795538086,
   "frames": 61,
   "title": "369 uczy dyźka matematyki",
   "views": 5232,
@@ -635,7 +695,7 @@
  },
  "7706703259775339809": {
   "banner": false,
-  "at": 1795535018,
+  "at": 1795538095,
   "frames": 53,
   "title": "S1mek o zatrzymaniu dżordżo",
   "views": 10500,
@@ -643,7 +703,7 @@
  },
  "7706591113863253281": {
   "banner": false,
-  "at": 1795535024,
+  "at": 1795538105,
   "frames": 84,
   "title": "369 dostał potężnego donate",
   "views": 34600,
@@ -651,7 +711,7 @@
  },
  "7706287332038593824": {
   "banner": false,
-  "at": 1795535032,
+  "at": 1795538115,
   "frames": 49,
   "title": "369 nie wie ile to 180 stopni",
   "views": 30300,
@@ -667,23 +727,27 @@
  },
  "7706285442152320288": {
   "banner": false,
-  "at": 1795535044,
+  "at": 1795538124,
   "frames": 47,
+  "near": 0.738,
+  "near_sec": 30,
   "title": "369 poznał mamm0na z mema",
   "views": 82500,
   "t": 1794299453
  },
  "7706285287277645089": {
   "banner": false,
-  "at": 1795535047,
+  "at": 1795538128,
   "frames": 19,
+  "near": 0.587,
+  "near_sec": 11,
   "title": "369 i mamm0n odpoczywają od siebie",
   "views": 7496,
   "t": 1794286826
  },
  "7706285150396566816": {
   "banner": false,
-  "at": 1795535050,
+  "at": 1795538131,
   "frames": 35,
   "title": "Mamm0n pokłócił się z cinkrofem",
   "views": 7911,
@@ -694,19 +758,23 @@
   "views": 2007,
   "t": 1794274235,
   "error": "ERROR: [TikTok] 7706206063497874720: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795538133
  },
  "7706203222637120801": {
   "banner": false,
-  "at": 1795535058,
+  "at": 1795538141,
   "frames": 60,
+  "near": 0.561,
+  "near_sec": 59,
   "title": "369 o podróbce wootinga",
   "views": 10300,
   "t": 1794240260
  },
  "7705931647991958817": {
   "banner": false,
-  "at": 1795535064,
+  "at": 1795538148,
   "frames": 62,
   "title": "369 o zbiórce na pralkę",
   "views": 26000,
@@ -714,15 +782,17 @@
  },
  "7705931454085156129": {
   "banner": false,
-  "at": 1795535070,
+  "at": 1795538153,
   "frames": 36,
+  "near": 0.541,
+  "near_sec": 7,
   "title": "Świstu każe 369 pić wódkę przed streamem",
   "views": 8881,
   "t": 1794207618
  },
  "7705931232915246368": {
   "banner": false,
-  "at": 1795535076,
+  "at": 1795538159,
   "frames": 55,
   "title": "Na podpis od 369 czeka 2000 osób",
   "views": 1920,
@@ -730,8 +800,10 @@
  },
  "7705867279405190433": {
   "banner": false,
-  "at": 1795535083,
+  "at": 1795538169,
   "frames": 68,
+  "near": 0.616,
+  "near_sec": 31,
   "title": "369 nie wiedział po której stronie gra",
   "views": 16200,
   "t": 1794162042
@@ -746,7 +818,7 @@
  },
  "7705547506976935200": {
   "banner": false,
-  "at": 1795535090,
+  "at": 1795538176,
   "frames": 34,
   "title": "369 o hejterach z tiktoka",
   "views": 4840,
@@ -754,7 +826,7 @@
  },
  "7705546915332558113": {
   "banner": false,
-  "at": 1795535097,
+  "at": 1795538183,
   "frames": 33,
   "title": "Koniec nożówki to koniec mamm0na?",
   "views": 14300,
@@ -762,7 +834,7 @@
  },
  "7705543661659950369": {
   "banner": false,
-  "at": 1795535103,
+  "at": 1795538191,
   "frames": 68,
   "title": "369 o politykach po tragedii w Krakowie",
   "views": 15500,
@@ -770,7 +842,7 @@
  },
  "7705524383388798241": {
   "banner": false,
-  "at": 1795535106,
+  "at": 1795538195,
   "frames": 35,
   "title": "Jak dostać podpis od 369 za darmo",
   "views": 44400,
@@ -778,7 +850,7 @@
  },
  "7705470600222936353": {
   "banner": false,
-  "at": 1795535113,
+  "at": 1795538204,
   "frames": 95,
   "title": "369 o spięciu YoungMultiego z Hellfieldem",
   "views": 25300,
@@ -786,15 +858,17 @@
  },
  "7705465455313702177": {
   "banner": false,
-  "at": 1795535121,
+  "at": 1795538214,
   "frames": 44,
+  "near": 0.632,
+  "near_sec": 19,
   "title": "369 grał w CS-a w bibliotece",
   "views": 12900,
   "t": 1794079259
  },
  "7705157919175691553": {
   "banner": false,
-  "at": 1795535127,
+  "at": 1795538218,
   "frames": 31,
   "title": "Koniec mamm0na w cs2?",
   "views": 95600,
@@ -802,7 +876,7 @@
  },
  "7705155064071081249": {
   "banner": false,
-  "at": 1795535132,
+  "at": 1795538223,
   "frames": 28,
   "title": "Czemu 369 nie gra w pro?",
   "views": 20000,
@@ -810,7 +884,7 @@
  },
  "7705154962736565537": {
   "banner": false,
-  "at": 1795535138,
+  "at": 1795538229,
   "frames": 38,
   "title": "Lepszy Twitch czy Kick?",
   "views": 11800,
@@ -818,7 +892,7 @@
  },
  "7705151658514255136": {
   "banner": false,
-  "at": 1795535144,
+  "at": 1795538236,
   "frames": 62,
   "title": "Jeśli 369 nie wbije 3000 elo, rozda motylka",
   "views": 3319,
@@ -826,39 +900,47 @@
  },
  "7705151549315583265": {
   "banner": false,
-  "at": 1795535149,
+  "at": 1795538242,
   "frames": 45,
+  "near": 0.563,
+  "near_sec": 38,
   "title": "10 level jest trudniejszy niż 30k na premierze?",
   "views": 40300,
   "t": 1794038455
  },
  "7704822877048114454": {
   "banner": false,
-  "at": 1795535153,
+  "at": 1795538247,
   "frames": 24,
+  "near": 0.679,
+  "near_sec": 19,
   "title": "Kiedy 369 skończy z internetem?",
   "views": 10400,
   "t": 1793968800
  },
  "7704822800057502978": {
   "banner": false,
-  "at": 1795535157,
+  "at": 1795538252,
   "frames": 23,
+  "near": 0.565,
+  "near_sec": 3,
   "title": "Najgłupsza decyzja w życiu 369",
   "views": 28500,
   "t": 1793948400
  },
  "7704812787775687969": {
   "banner": false,
-  "at": 1795535161,
+  "at": 1795538256,
   "frames": 20,
+  "near": 0.671,
+  "near_sec": 12,
   "title": "Czy warto rzucić szkołę dla streamowania?",
   "views": 10800,
   "t": 1793916526
  },
  "7704803387140803862": {
   "banner": false,
-  "at": 1795535164,
+  "at": 1795538259,
   "frames": 32,
   "title": "369 o błędzie Mamm0na",
   "views": 3995,
@@ -866,7 +948,7 @@
  },
  "7704802792363396374": {
   "banner": false,
-  "at": 1795535166,
+  "at": 1795538262,
   "frames": 53,
   "title": "Znaleźli damskiego Mamm0na",
   "views": 53400,
@@ -874,15 +956,17 @@
  },
  "7704716545515097376": {
   "banner": false,
-  "at": 1795535173,
+  "at": 1795538271,
   "frames": 92,
+  "near": 0.55,
+  "near_sec": 12,
   "title": "Coach G2 dostał blokadę za bycie... Katolikiem",
   "views": 78000,
   "t": 1793894116
  },
  "7704338494721658145": {
   "banner": false,
-  "at": 1795535177,
+  "at": 1795538277,
   "frames": 63,
   "title": "369 nie gra bez skinów",
   "views": 39600,
@@ -890,7 +974,7 @@
  },
  "7704070323305532694": {
   "banner": false,
-  "at": 1795535183,
+  "at": 1795538286,
   "frames": 61,
   "title": "Mamm0n odkrył spisek nvidii",
   "views": 102300,
@@ -898,7 +982,7 @@
  },
  "7704054272962432289": {
   "banner": false,
-  "at": 1795535187,
+  "at": 1795538292,
   "frames": 58,
   "title": "Mamm0n nigdy nie leciał, ale wie wszystko o samolotach",
   "views": 67900,
@@ -906,7 +990,7 @@
  },
  "7704054199138503969": {
   "banner": false,
-  "at": 1795535192,
+  "at": 1795538298,
   "frames": 69,
   "title": "369 o dwóch twarzach mamm0na",
   "views": 41800,
@@ -914,7 +998,7 @@
  },
  "7704052993158565142": {
   "banner": false,
-  "at": 1795535197,
+  "at": 1795538305,
   "frames": 62,
   "title": "Mamm0n przeżył trzęsienie ziemi w płocku",
   "views": 22500,
@@ -933,11 +1017,13 @@
   "views": 4654,
   "t": 1793732431,
   "error": "ERROR: [TikTok] 7703717357599870240: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795538307
  },
  "7703715446918303009": {
   "banner": false,
-  "at": 1795535207,
+  "at": 1795538314,
   "frames": 48,
   "title": "Gdzie są widzowie Mamm0na?",
   "views": 12300,
@@ -948,18 +1034,22 @@
   "views": 6612,
   "t": 1793703058,
   "error": "ERROR: [TikTok] 7703714894176177440: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795538315
  },
  "7703714434794933536": {
   "title": "S1mek kupił router do iPhone'a",
   "views": 1578,
   "t": 1793660799,
   "error": "ERROR: [TikTok] 7703714434794933536: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795538316
  },
  "7703604581850254624": {
   "banner": false,
-  "at": 1795535215,
+  "at": 1795538323,
   "frames": 80,
   "title": "Pytanie do wszystkich graczy LOLa w Polsce od 369 po duo z Mamm0nem",
   "views": 42400,
@@ -967,7 +1057,7 @@
  },
  "7703340404942441760": {
   "banner": false,
-  "at": 1795535220,
+  "at": 1795538327,
   "frames": 40,
   "title": "Odczucia 369 po graniu na gości +3000 elo",
   "views": 10700,
@@ -975,7 +1065,7 @@
  },
  "7703340146418027808": {
   "banner": false,
-  "at": 1795535224,
+  "at": 1795538332,
   "frames": 33,
   "title": "369 nie przyjmuje żadnych donate od widzów",
   "views": 8142,
@@ -986,11 +1076,13 @@
   "views": 7421,
   "t": 1793601614,
   "error": "ERROR: [TikTok] 7703339979249913121: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795538333
  },
  "7703339846714035488": {
   "banner": false,
-  "at": 1795535230,
+  "at": 1795538338,
   "frames": 64,
   "title": "Pafu wysłał 369 klipa w trakcie meczu",
   "views": 36100,
@@ -998,7 +1090,7 @@
  },
  "7703338155637787926": {
   "banner": false,
-  "at": 1795535234,
+  "at": 1795538345,
   "frames": 20,
   "title": "Hejter Pafu wbił na chat do 369",
   "views": 22200,
@@ -1006,7 +1098,7 @@
  },
  "7703337731815902486": {
   "banner": false,
-  "at": 1795535237,
+  "at": 1795538348,
   "frames": 23,
   "title": "369 odpowiada hejterowi YoungMultiego",
   "views": 9779,
@@ -1014,7 +1106,7 @@
  },
  "7703337447261768983": {
   "banner": false,
-  "at": 1795535241,
+  "at": 1795538353,
   "frames": 34,
   "title": "369 chciał nawrócić swojego przyjaciela na CS2",
   "views": 26400,
@@ -1022,7 +1114,7 @@
  },
  "7703336958164094230": {
   "banner": false,
-  "at": 1795535243,
+  "at": 1795538360,
   "frames": 20,
   "title": "Mamm0n poza streamem słucha 369",
   "views": 64600,
@@ -1030,7 +1122,7 @@
  },
  "7702963004870004001": {
   "banner": false,
-  "at": 1795535247,
+  "at": 1795538364,
   "frames": 80,
   "title": "369 ma 30.000zł w skinach za darmo?",
   "views": 77400,
@@ -1038,7 +1130,7 @@
  },
  "7702957544909704480": {
   "banner": false,
-  "at": 1795535253,
+  "at": 1795538372,
   "frames": 54,
   "title": "369 nigdy nie zagłosuje na tuska",
   "views": 15400,
@@ -1046,7 +1138,7 @@
  },
  "7702934245005659415": {
   "banner": false,
-  "at": 1795535259,
+  "at": 1795538381,
   "frames": 98,
   "title": "369 kontra 3200 elo",
   "views": 28200,
@@ -1054,7 +1146,7 @@
  },
  "7702930896860581152": {
   "banner": false,
-  "at": 1795535265,
+  "at": 1795538387,
   "frames": 50,
   "title": "369 o kupowaniu repów",
   "views": 15600,
@@ -1062,7 +1154,7 @@
  },
  "7702484141769559328": {
   "banner": false,
-  "at": 1795535270,
+  "at": 1795538392,
   "frames": 55,
   "title": "369 o tym ile płaci shoterom",
   "views": 24800,
@@ -1073,26 +1165,32 @@
   "views": 6462,
   "t": 1793371576,
   "error": "ERROR: [TikTok] 7702472243284069664: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795538394
  },
  "7702197332762299680": {
   "title": "369 o planach na listopad",
   "views": 3090,
   "t": 1793346018,
   "error": "ERROR: [TikTok] 7702197332762299680: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795538396
  },
  "7702196736319606049": {
   "banner": false,
-  "at": 1795535284,
+  "at": 1795538408,
   "frames": 56,
+  "near": 0.582,
+  "near_sec": 6,
   "title": "369 rozdaje 10k za oglądanie streamów",
   "views": 8854,
   "t": 1793311847
  },
  "7702183618885586208": {
   "banner": false,
-  "at": 1795535288,
+  "at": 1795538411,
   "frames": 28,
   "title": "369 o tym jak wyjść z 5-6 levela",
   "views": 51400,
@@ -1100,23 +1198,27 @@
  },
  "7702153005356862752": {
   "banner": false,
-  "at": 1795535300,
+  "at": 1795538428,
   "frames": 98,
+  "near": 0.696,
+  "near_sec": 9,
   "title": "369 o tym czemu już nie ma contentu z mamm0nem",
   "views": 28400,
   "t": 1793297245
  },
  "7701850438278188320": {
   "banner": false,
-  "at": 1795535311,
+  "at": 1795538441,
   "frames": 82,
+  "near": 0.649,
+  "near_sec": 32,
   "title": "369 czeka tydzień na myszkę z media expert",
   "views": 16900,
   "t": 1793266841
  },
  "7701849376976620832": {
   "banner": false,
-  "at": 1795535315,
+  "at": 1795538445,
   "frames": 26,
   "title": "369 wraca na twitcha?",
   "views": 11700,
@@ -1124,31 +1226,37 @@
  },
  "7696254264020045088": {
   "banner": false,
-  "at": 1795535320,
+  "at": 1795538452,
   "frames": 43,
+  "near": 0.541,
+  "near_sec": 1,
   "title": "Mamm0n pruje się do 369 o nożówkę",
   "views": 10700,
   "t": 1792141254
  },
  "7695903942827445537": {
   "banner": false,
-  "at": 1795535326,
+  "at": 1795538459,
   "frames": 40,
+  "near": 0.639,
+  "near_sec": 13,
   "title": "369 znowu idzie AFK przed meczem",
   "views": 97600,
   "t": 1792940427
  },
  "7695903400705166625": {
   "banner": false,
-  "at": 1795535330,
+  "at": 1795538464,
   "frames": 54,
+  "near": 0.556,
+  "near_sec": 42,
   "title": "Mamm0n robi aferę o kreatynę",
   "views": 235900,
   "t": 1792688411
  },
  "7695903027680529697": {
   "banner": false,
-  "at": 1795535335,
+  "at": 1795538472,
   "frames": 50,
   "title": "Mamm0n płacze że nikt nie trzyma mida",
   "views": 20100,
@@ -1159,11 +1267,13 @@
   "views": 49800,
   "t": 1792087207,
   "error": "ERROR: [TikTok] 7695902601803517216: This post may not be comfortable for some audiences. Log in for access. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-",
-  "tries": 6
+  "reason": "18+",
+  "tries": 7,
+  "last_try": 1795538473
  },
  "7695902452062620960": {
   "banner": false,
-  "at": 1795535343,
+  "at": 1795538482,
   "frames": 98,
   "title": "Mamm0n zjechał 369 za AFK na nożówce",
   "views": 62500,
@@ -1171,7 +1281,7 @@
  },
  "7695901241330634017": {
   "banner": false,
-  "at": 1795535346,
+  "at": 1795538487,
   "frames": 50,
   "title": "Mamm0nowi dobrało przeciwników na jego poziomie *gra na boty*",
   "views": 100400,
@@ -1179,15 +1289,17 @@
  },
  "7695897048616373537": {
   "banner": false,
-  "at": 1795535352,
+  "at": 1795538493,
   "frames": 34,
+  "near": 0.678,
+  "near_sec": 30,
   "title": "zdildosowali serwer v2",
   "views": 65100,
   "t": 1791840669
  },
  "7695834670948306208": {
   "banner": false,
-  "at": 1795535355,
+  "at": 1795538496,
   "frames": 35,
   "title": "Mamm0n o graczach powyżej 2000 elo",
   "views": 25600,
@@ -1195,7 +1307,7 @@
  },
  "7695833683273583904": {
   "banner": false,
-  "at": 1795535358,
+  "at": 1795538500,
   "frames": 41,
   "title": "369 nie będzie głaskał Mamm0na po głowie",
   "views": 57200,
@@ -1203,7 +1315,7 @@
  },
  "7695831674042567968": {
   "banner": false,
-  "at": 1795535362,
+  "at": 1795538504,
   "frames": 58,
   "title": "Mamm0n pokazuje jak Pafu sprawdza kąty",
   "views": 21200,
@@ -1211,7 +1323,7 @@
  },
  "7695820311329082657": {
   "banner": false,
-  "at": 1795535367,
+  "at": 1795538508,
   "frames": 48,
   "title": "369 wyzywa się z Ukraińcem po polsku",
   "views": 14900,
@@ -1219,8 +1331,10 @@
  },
  "7695818362387025185": {
   "banner": false,
-  "at": 1795535371,
+  "at": 1795538513,
   "frames": 32,
+  "near": 0.644,
+  "near_sec": 14,
   "title": "Mamm0n nie płacze tylko narzeka",
   "views": 38700,
   "t": 1791993617
@@ -1235,7 +1349,7 @@
  },
  "7695815131476839713": {
   "banner": false,
-  "at": 1795535378,
+  "at": 1795538516,
   "frames": 23,
   "title": "Mamm0n spadł z 9 levela przez Cinkrofa",
   "views": 62300,
@@ -1243,39 +1357,47 @@
  },
  "7695795033240325409": {
   "banner": false,
-  "at": 1795535409,
+  "at": 1795538540,
   "frames": 126,
+  "near": 0.778,
+  "near_sec": 12,
   "title": "Dlaczego 369 odszedł z VALORANT",
   "views": 110000,
   "t": 1791816916
  },
  "7695482254839123232": {
   "banner": false,
-  "at": 1795535421,
+  "at": 1795538557,
   "frames": 99,
+  "near": 0.713,
+  "near_sec": 24,
   "title": "tsxnine ostatni raz o VALORANT...",
   "views": 178600,
   "t": 1791744091
  },
  "7695165820091026720": {
   "banner": false,
-  "at": 1795535429,
+  "at": 1795538567,
   "frames": 49,
+  "near": 0.63,
+  "near_sec": 31,
   "title": "369 o tym czemu dzieciaki są jak zombie",
   "views": 13500,
   "t": 1791799247
  },
  "7695165165649644832": {
   "banner": false,
-  "at": 1795535451,
+  "at": 1795538587,
   "frames": 111,
+  "near": 0.611,
+  "near_sec": 44,
   "title": "369 o tym ile płaci za klipy",
   "views": 144800,
   "t": 1791718806
  },
  "7695161579171515681": {
   "banner": false,
-  "at": 1795535455,
+  "at": 1795538590,
   "frames": 23,
   "title": "369 o tym po co gra z mamm0nem",
   "views": 29400,
@@ -1283,7 +1405,7 @@
  },
  "7695157473753320736": {
   "banner": false,
-  "at": 1795535460,
+  "at": 1795538595,
   "frames": 65,
   "title": "Pafu pruje się do mamm0na o flesha",
   "views": 86200,
@@ -1291,7 +1413,7 @@
  },
  "7695155916697521440": {
   "banner": false,
-  "at": 1795535464,
+  "at": 1795538600,
   "frames": 80,
   "title": "Mamm0n wyszedł z meczu bo 369 był afk",
   "views": 48200,
@@ -1299,7 +1421,7 @@
  },
  "7695151125418282273": {
   "banner": false,
-  "at": 1795535469,
+  "at": 1795538605,
   "frames": 34,
   "title": "Mamm0n nie przyznaje się do smoke'a",
   "views": 27000,
@@ -1307,7 +1429,7 @@
  },
  "7695102301870083360": {
   "banner": false,
-  "at": 1795535473,
+  "at": 1795538609,
   "frames": 73,
   "title": "Coach broken hand",
   "views": 92000,
@@ -1315,39 +1437,47 @@
  },
  "7694791381264436512": {
   "banner": false,
-  "at": 1795535481,
+  "at": 1795538617,
   "frames": 48,
+  "near": 0.638,
+  "near_sec": 1,
   "title": "369 o tym czemu odszedł z valoranta",
   "views": 52000,
   "t": 1791676810
  },
  "7694788743202409760": {
   "banner": false,
-  "at": 1795535491,
+  "at": 1795538630,
   "frames": 65,
+  "near": 0.722,
+  "near_sec": 6,
   "title": "Mamm0n wkurzył się na 369 przez cinkrofa",
   "views": 35300,
   "t": 1791620440
  },
  "7694785629816720673": {
   "banner": false,
-  "at": 1795535501,
+  "at": 1795538641,
   "frames": 54,
+  "near": 0.711,
+  "near_sec": 11,
   "title": "369 i mamm0n o krwawym piątku",
   "views": 22900,
   "t": 1791586849
  },
  "7694759651128151328": {
   "banner": false,
-  "at": 1795535525,
+  "at": 1795538662,
   "frames": 116,
+  "near": 0.716,
+  "near_sec": 106,
   "title": "369 o tym czemu internet będzie na dowód",
   "views": 8642,
   "t": 1791579622
  },
  "7694410715708312865": {
   "banner": false,
-  "at": 1795535531,
+  "at": 1795538667,
   "frames": 21,
   "title": "Cinkrof ma teorię o Mamm0nie",
   "views": 20500,
@@ -1355,16 +1485,20 @@
  },
  "7694297130885860641": {
   "banner": false,
-  "at": 1795535546,
+  "at": 1795538683,
   "frames": 90,
+  "near": 0.612,
+  "near_sec": 42,
   "title": "369 o tym czemu krytyka/hejt nie ma już sensu",
   "views": 20400,
   "t": 1791468161
  },
  "7694290872640277792": {
   "banner": false,
-  "at": 1795535560,
+  "at": 1795538698,
   "frames": 84,
+  "near": 0.755,
+  "near_sec": 25,
   "title": "tsxnine o hejcie na PafuBiceps",
   "views": 14200,
   "t": 1791466700
@@ -1374,34 +1508,42 @@
   "views": 6840,
   "t": 1791440422,
   "error": "ERROR: [TikTok] 7694009171473108257: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795538699
  },
  "7693957013910474017": {
   "title": "369 kłóci się z Mamm0nem o muta",
   "views": 49500,
   "t": 1791752457,
   "error": "ERROR: [TikTok] 7693957013910474017: This post may not be comfortable for some audiences. Log in for access. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-",
-  "tries": 6
+  "reason": "18+",
+  "tries": 7,
+  "last_try": 1795538700
  },
  "7693951117327158560": {
   "banner": false,
-  "at": 1795535570,
+  "at": 1795538706,
   "frames": 66,
+  "near": 0.544,
+  "near_sec": 53,
   "title": "Mamm0n kontra Cinkrof",
   "views": 9637,
   "t": 1791627016
  },
  "7693949586670439713": {
   "banner": false,
-  "at": 1795535577,
+  "at": 1795538711,
   "frames": 37,
+  "near": 0.526,
+  "near_sec": 12,
   "title": "Cinkrof dzwoni do Mamm0na",
   "views": 8287,
   "t": 1791482432
  },
  "7693948206782221600": {
   "banner": false,
-  "at": 1795535585,
+  "at": 1795538717,
   "frames": 48,
   "title": "Mamm0n zmutował Cinkrofa po 30 minutach",
   "views": 10600,
@@ -1409,7 +1551,7 @@
  },
  "7693945088992382241": {
   "banner": false,
-  "at": 1795535590,
+  "at": 1795538721,
   "frames": 29,
   "title": "Mamm0n obraził się i gra na mute",
   "views": 51500,
@@ -1417,7 +1559,7 @@
  },
  "7693545685433486625": {
   "banner": false,
-  "at": 1795535593,
+  "at": 1795538723,
   "frames": 31,
   "title": "Neex i 369 pogodzeni?",
   "views": 34100,
@@ -1425,31 +1567,37 @@
  },
  "7693286254904937760": {
   "banner": false,
-  "at": 1795535608,
+  "at": 1795538739,
   "frames": 84,
+  "near": 0.545,
+  "near_sec": 25,
   "title": "369 odpowiada na zaczepkę neexcsgo",
   "views": 157200,
   "t": 1791232794
  },
  "7692809200971418913": {
   "banner": false,
-  "at": 1795535617,
+  "at": 1795538749,
   "frames": 53,
+  "near": 0.52,
+  "near_sec": 41,
   "title": "Faceit testuje polskie serwery",
   "views": 92800,
   "t": 1791123399
  },
  "7692766313088814369": {
   "banner": false,
-  "at": 1795535629,
+  "at": 1795538762,
   "frames": 66,
+  "near": 0.683,
+  "near_sec": 29,
   "title": "369 nie będzie bronił mammona",
   "views": 67900,
   "t": 1791111735
  },
  "7692513407655841057": {
   "banner": false,
-  "at": 1795535651,
+  "at": 1795538785,
   "frames": 86,
   "title": "369 o klipie wyciętym z kontekstu",
   "views": 24800,
@@ -1457,7 +1605,7 @@
  },
  "7692482391172058400": {
   "banner": false,
-  "at": 1795535667,
+  "at": 1795538805,
   "frames": 72,
   "title": "369 o tym, że pashabiceps zabrał kompa pafu",
   "views": 153800,
@@ -1465,15 +1613,17 @@
  },
  "7692399164335934753": {
   "banner": false,
-  "at": 1795535672,
+  "at": 1795538809,
   "frames": 19,
+  "near": 0.626,
+  "near_sec": 13,
   "title": "Mamm0n odisntalowal faceit",
   "views": 67600,
   "t": 1791026253
  },
  "7691794795160669472": {
   "banner": false,
-  "at": 1795535677,
+  "at": 1795538813,
   "frames": 48,
   "title": "Mamm0n pruje się do haema",
   "views": 9200,
@@ -1481,7 +1631,7 @@
  },
  "7691792542030957857": {
   "banner": false,
-  "at": 1795535681,
+  "at": 1795538816,
   "frames": 23,
   "title": "Lineup Mamm0na",
   "views": 8955,
@@ -1489,7 +1639,7 @@
  },
  "7691779104588254497": {
   "banner": false,
-  "at": 1795535685,
+  "at": 1795538819,
   "frames": 51,
   "title": "Płocki detektyw",
   "views": 26700,
@@ -1497,7 +1647,7 @@
  },
  "7691726957859376416": {
   "banner": false,
-  "at": 1795535694,
+  "at": 1795538826,
   "frames": 36,
   "title": "369 o 10 lvl faceit",
   "views": 93000,
@@ -1505,7 +1655,7 @@
  },
  "7691069474790706464": {
   "banner": false,
-  "at": 1795535698,
+  "at": 1795538831,
   "frames": 18,
   "title": "Mamm0n zajebal smoke'a",
   "views": 219300,
@@ -1513,7 +1663,7 @@
  },
  "7691068244240747809": {
   "banner": false,
-  "at": 1795535706,
+  "at": 1795538838,
   "frames": 45,
   "title": "Mamm0n płacze o reset meczu",
   "views": 58900,
@@ -1521,7 +1671,7 @@
  },
  "7691066909055388961": {
   "banner": false,
-  "at": 1795535712,
+  "at": 1795538843,
   "frames": 44,
   "title": "Mamm0n zafleshowal 369",
   "views": 122400,
@@ -1529,7 +1679,7 @@
  },
  "7691064255763860769": {
   "banner": false,
-  "at": 1795535718,
+  "at": 1795538848,
   "frames": 39,
   "title": "Mamm0n kontra Szeli",
   "views": 102500,
@@ -1540,11 +1690,13 @@
   "views": 5323,
   "t": 1790658657,
   "error": "ERROR: [TikTok] 7690705995722509600: Your IP address is blocked from accessing this post",
-  "tries": 6
+  "reason": "ukryty",
+  "tries": 7,
+  "last_try": 1795538849
  },
  "7690705375623908641": {
   "banner": false,
-  "at": 1795535723,
+  "at": 1795538853,
   "frames": 72,
   "title": "Mamm0n płacze przez cały mecz",
   "views": 24500,
@@ -1552,7 +1704,7 @@
  },
  "7690704119899655457": {
   "banner": false,
-  "at": 1795535731,
+  "at": 1795538862,
   "frames": 54,
   "title": "Mamm0n konta haem",
   "views": 46500,
@@ -1560,7 +1712,7 @@
  },
  "7690352107509042465": {
   "banner": false,
-  "at": 1795535734,
+  "at": 1795538864,
   "frames": 20,
   "title": "Prywatny coach Mamm0na",
   "views": 34800,
@@ -1576,7 +1728,7 @@
  },
  "7690350161498819872": {
   "banner": false,
-  "at": 1795535750,
+  "at": 1795538869,
   "frames": 25,
   "title": "Mamm0n nie rzuci smoke'a",
   "views": 245400,
@@ -1584,7 +1736,7 @@
  },
  "7690349278299966753": {
   "banner": false,
-  "at": 1795535754,
+  "at": 1795538872,
   "frames": 39,
   "title": "Mamm0n włączył aimbota?",
   "views": 196900,
@@ -1592,7 +1744,7 @@
  },
  "7690337751027256608": {
   "banner": false,
-  "at": 1795535761,
+  "at": 1795538878,
   "frames": 41,
   "title": "Zdildosowali serwer FACEIT",
   "views": 227600,
@@ -1600,34 +1752,40 @@
  },
  "7690311912529120545": {
   "banner": false,
-  "at": 1795535768,
+  "at": 1795538885,
   "frames": 52,
+  "near": 0.612,
+  "near_sec": 41,
   "title": "Mamm0n boi się sv_cheats",
   "views": 17300,
   "t": 1790540276
  },
  "7689932234400288032": {
   "banner": false,
-  "at": 1795535775,
+  "at": 1795538892,
   "frames": 31,
+  "near": 0.539,
+  "near_sec": 1,
   "title": "8 level to low elo",
   "views": 56100,
   "t": 1790451875
  },
  "7683144346140445985": {
   "banner": false,
-  "at": 1795535796,
+  "at": 1795538909,
   "frames": 93,
+  "near": 0.791,
+  "near_sec": 53,
   "title": "369 o proszeniu o skiny",
   "views": 234100,
   "t": 1788871448
  },
  "7671803781754965281": {
   "banner": false,
-  "at": 1795535804,
+  "at": 1795538916,
   "frames": 36,
   "title": "Najgorsza firma myszek!!!",
-  "views": 288000,
+  "views": 288100,
   "t": null
  }
 }
