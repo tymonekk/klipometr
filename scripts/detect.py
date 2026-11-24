@@ -18,7 +18,7 @@ WORK_WIDTH = 360            # klatki skalujemy do tej szerokości
 ASPECT = 2.58               # szerokość / wysokość baneru
 MIN_W, MAX_W = 0.45, 0.97   # szerokość baneru jako część szerokości klatki
 SCALE_STEP = 1.03           # kolejne sprawdzane szerokości różnią się o 3%
-MIN_SCORE = 0.80            # plus - minus (prawdziwe banery: >= 0.9, inne rzeczy: <= 0.81)
+MIN_SCORE = 0.86            # plus - minus (prawdziwe banery: >= 0.91; najbliższe pomyłki, np. ramki w menu gry: <= 0.79)
 MIN_PLUS = 0.85
 MAX_MINUS = 0.15
 NEAR_SCORE = 0.5            # od tego wyniku zapamiętujemy "prawie trafienia" (tylko do kontroli)

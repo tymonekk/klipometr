@@ -224,6 +224,7 @@ def scan_video(video_id):
             entry["sec"] = hits[0][0]
             entry["hits"] = len(hits)
             entry["color"] = hits[0][1]["color"]
+            entry["score"] = max(h[1]["score"] for h in hits)
         elif near:
             # najlepszy wynik poniżej progu: do ręcznej kontroli, czy jakiś baner nie umyka
             entry["near"] = near
