@@ -327,7 +327,7 @@
   /* tablet i wąskie okno: jedna kolumna, trochę szersza */
   @media (min-width: 760px) { .wrap { max-width: 760px; } }
   @media (min-width: 1100px) {
-    .wrap { max-width: 1240px; padding: 22px 40px 64px; }
+    .wrap { max-width: 1480px; padding: 22px 40px 64px; }
     header { padding: 4px 0 22px; }
     .mark { width: 46px; height: 46px; }
     .brand { font-size: 24px; }
@@ -348,6 +348,28 @@
     .tile .val { font-size: 22px; }
     .tile.win .val { font-size: 36px; }
     .stat .val { font-size: 22px; }
+  }
+  /* monitor 2K (2560 px, także 2048 px przy skalowaniu 125%): szersza prawa kolumna, klipy w dwóch rzędach obok siebie */
+  @media (min-width: 1700px) {
+    .wrap { max-width: 1760px; padding: 30px 56px 72px; }
+    .main { grid-template-columns: minmax(0, 1fr) minmax(0, 1.75fr); gap: 56px; }
+    .mark { width: 50px; height: 50px; }
+    .brand { font-size: 27px; }
+    .chip { font-size: 15px; padding: 8px 14px; }
+    .tile { min-height: 156px; }
+    .tile .val { font-size: 25px; }
+    .tile.win .val { font-size: 42px; }
+    .stat .val { font-size: 24px; }
+    .wbars { height: 270px; }
+    .whead .wval { font-size: 38px; }
+    .list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+    .list .empty { grid-column: 1 / -1; }
+  }
+  /* bardzo szeroki ekran (2K przy 100%): wszystko o 15% większe (tekst na takim monitorze jest drobny), klipy w trzech kolumnach */
+  @media (min-width: 2300px) {
+    .wrap { max-width: 1860px; zoom: 1.15; }
+    .main { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+    .list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
 </style>
 </head>
