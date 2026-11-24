@@ -41,7 +41,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     concurrency:
-      group: scan
+      # przebiegi po pushu tylko publikują, więc nie czekają w kolejce za skanowaniem
+      group: ${{ github.event_name == 'push' && format('push-{0}', github.run_id) || 'scan' }}
       cancel-in-progress: false
     outputs:
       changed: ${{ steps.save.outputs.changed }}
