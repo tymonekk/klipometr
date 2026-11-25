@@ -1,4 +1,12 @@
 {
+ "7711854256785001761": {
+  "banner": false,
+  "at": 1795628247,
+  "frames": 10,
+  "title": "Co daje podpis na STEAM?",
+  "views": 1022,
+  "t": 1795555990
+ },
  "7711854168574610721": {
   "banner": true,
   "at": 1795619220,
@@ -8,7 +16,7 @@
   "color": "niebieski",
   "score": 0.999,
   "title": "369 nie wierzy, że TikTok łyknął baita Jakuba",
-  "views": 1165,
+  "views": 1369,
   "t": 1795618839,
   "t_src": "page"
  },
@@ -21,7 +29,7 @@
   "color": "niebieski",
   "score": 0.999,
   "title": "Najważniejsza zasada jakiej nauczył się 369 po 3 latach streamingu",
-  "views": 1152,
+  "views": 1201,
   "t": 1795609811,
   "t_src": "page"
  },
@@ -34,7 +42,7 @@
   "color": "niebieski",
   "score": 1.0,
   "title": "369 radzi młodym streamerom",
-  "views": 958,
+  "views": 1024,
   "t": 1795600830,
   "t_src": "page"
  },
@@ -47,7 +55,7 @@
   "color": "niebieski",
   "score": 0.999,
   "title": "Jak zostać shoterem 369",
-  "views": 3382,
+  "views": 3921,
   "t": 1795591849,
   "t_src": "page"
  },
@@ -60,7 +68,7 @@
   "color": "niebieski",
   "score": 1.0,
   "title": "Największy błąd młodości 369. A wy kiedy się wyprowadziliście?",
-  "views": 5100,
+  "views": 5470,
   "t": 1795582809,
   "t_src": "page"
  },
@@ -82,7 +90,7 @@
   "color": "niebieski",
   "score": 0.999,
   "title": "Komputer za 20.000 złoty i dalej laguje w CS2. Też wam laguje?",
-  "views": 1697,
+  "views": 1734,
   "t": 1795564822,
   "t_src": "page"
  },
@@ -95,7 +103,7 @@
   "color": "niebieski",
   "score": 0.997,
   "title": "Dlaczego Jakub wyzywa 369?",
-  "views": 4426,
+  "views": 4521,
   "t": 1795555517,
   "t_src": "page"
  },
@@ -104,7 +112,7 @@
   "at": 1795545084,
   "frames": 18,
   "title": "Co znaczy nick tsxnine. Wiedzieliście?",
-  "views": 19400,
+  "views": 20700,
   "t": 1795545017
  },
  "7711731853224561959": {
@@ -112,7 +120,7 @@
   "at": 1795537700,
   "frames": 21,
   "title": "Emerald stracił 3 tysiące w jeden dzień. Kupilibyście teraz?",
-  "views": 5898,
+  "views": 5905,
   "t": 1795534210
  },
  "7711453835922853153": {
@@ -329,8 +337,8 @@
   "t": 1795068000,
   "error": "ERROR: [TikTok] 7709617034320989462: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581371
+  "tries": 9,
+  "last_try": 1795628248
  },
  "7709616409449352470": {
   "banner": true,
@@ -340,7 +348,7 @@
   "hits": 4,
   "color": "niebieski",
   "title": "369 porównał CS2 do GTA 6",
-  "views": 24200,
+  "views": 24300,
   "t": 1795034957,
   "t_src": "page"
  },
@@ -352,7 +360,7 @@
   "hits": 3,
   "color": "niebieski",
   "title": "Ulubiona mapa 369",
-  "views": 69000,
+  "views": 69400,
   "t": 1795111200,
   "t_src": "page"
  },
@@ -364,7 +372,7 @@
   "hits": 3,
   "color": "niebieski",
   "title": "369 nie przeleje ci na kartę graficzną",
-  "views": 1500,
+  "views": 1504,
   "t": 1795100400,
   "t_src": "page"
  },
@@ -376,7 +384,7 @@
   "hits": 3,
   "color": "niebieski",
   "title": "Jak przejść z Valoranta na CS-a?",
-  "views": 22500,
+  "views": 22600,
   "t": 1795089600,
   "t_src": "page"
  },
@@ -388,7 +396,7 @@
   "hits": 4,
   "color": "niebieski",
   "title": "369 o nowym Cobblestonie",
-  "views": 3062,
+  "views": 3068,
   "t": 1795078800,
   "t_src": "page"
  },
@@ -406,8 +414,8 @@
   "t": 1795057200,
   "error": "ERROR: [TikTok] 7709525471888788758: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581372
+  "tries": 9,
+  "last_try": 1795628249
  },
  "7709251470444514582": {
   "title": "369 ma 2000 osób w kolejce po podpis",
@@ -415,8 +423,8 @@
   "t": 1795046400,
   "error": "ERROR: [TikTok] 7709251470444514582: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581373
+  "tries": 9,
+  "last_try": 1795628250
  },
  "7709251265095634198": {
   "banner": true,
@@ -447,7 +455,7 @@
   "hits": 3,
   "color": "niebieski",
   "title": "Messi czy Ronaldo?",
-  "views": 8579,
+  "views": 8606,
   "t": 1794981600,
   "t_src": "page"
  },
@@ -457,8 +465,8 @@
   "t": 1794970800,
   "error": "ERROR: [TikTok] 7709249985069485334: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581375
+  "tries": 9,
+  "last_try": 1795628251
  },
  "7709249399783804182": {
   "banner": true,
@@ -468,7 +476,7 @@
   "hits": 4,
   "color": "niebieski",
   "title": "Izak zdradził Polskę i żonę",
-  "views": 1723,
+  "views": 1736,
   "t": 1794960000,
   "t_src": "page"
  },
@@ -492,7 +500,7 @@
   "hits": 3,
   "color": "niebieski",
   "title": "369 kupi auto dzięki hejterom",
-  "views": 2433,
+  "views": 2436,
   "t": 1794942011,
   "t_src": "page"
  },
@@ -502,8 +510,8 @@
   "t": 1794936920,
   "error": "ERROR: [TikTok] 7708909380950936864: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581376
+  "tries": 9,
+  "last_try": 1795628252
  },
  "7708909115107462432": {
   "title": "369 o ocenach w szkole",
@@ -511,8 +519,8 @@
   "t": 1794929649,
   "error": "ERROR: [TikTok] 7708909115107462432: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581377
+  "tries": 9,
+  "last_try": 1795628252
  },
  "7708908878448069921": {
   "title": "369 o zdradzie Izaka",
@@ -520,8 +528,8 @@
   "t": 1794921022,
   "error": "ERROR: [TikTok] 7708908878448069921: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581378
+  "tries": 9,
+  "last_try": 1795628254
  },
  "7708908718565510433": {
   "banner": true,
@@ -541,8 +549,8 @@
   "t": 1794909013,
   "error": "ERROR: [TikTok] 7708908615800900896: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581379
+  "tries": 9,
+  "last_try": 1795628255
  },
  "7708908418764950817": {
   "title": "Tusk z Izakiem manipulują Faceitem",
@@ -550,8 +558,8 @@
   "t": 1794903624,
   "error": "ERROR: [TikTok] 7708908418764950817: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581380
+  "tries": 9,
+  "last_try": 1795628256
  },
  "7708908177651289377": {
   "title": "369 dostał granatem od swojego",
@@ -559,8 +567,8 @@
   "t": 1794896791,
   "error": "ERROR: [TikTok] 7708908177651289377: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581381
+  "tries": 9,
+  "last_try": 1795628257
  },
  "7708907735177350433": {
   "title": "S1mek sprzedał rundę za 5 zł",
@@ -568,8 +576,8 @@
   "t": 1794891600,
   "error": "ERROR: [TikTok] 7708907735177350433: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581382
+  "tries": 9,
+  "last_try": 1795628257
  },
  "7708907632777514272": {
   "banner": true,
@@ -579,7 +587,7 @@
   "hits": 4,
   "color": "niebieski",
   "title": "369 ma ferie od Mamm0na",
-  "views": 8823,
+  "views": 8828,
   "t": 1794886106,
   "t_src": "page"
  },
@@ -591,7 +599,7 @@
   "hits": 3,
   "color": "niebieski",
   "title": "Morawiecki dodał TikToka z Izakiem",
-  "views": 177800,
+  "views": 178400,
   "t": 1794878854,
   "t_src": "page"
  },
@@ -601,8 +609,8 @@
   "t": 1794875234,
   "error": "ERROR: [TikTok] 7708907304845937952: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581383
+  "tries": 9,
+  "last_try": 1795628258
  },
  "7708907160800972064": {
   "banner": true,
@@ -612,7 +620,7 @@
   "hits": 4,
   "color": "niebieski",
   "title": "369 nie będzie grał z Mamm0nem dla liczb",
-  "views": 7548,
+  "views": 7555,
   "t": 1794869823,
   "t_src": "page"
  },
@@ -624,7 +632,7 @@
   "hits": 3,
   "color": "niebieski",
   "title": "369 o młodych streamerach",
-  "views": 7660,
+  "views": 7672,
   "t": 1794855623,
   "t_src": "page"
  },
@@ -636,7 +644,7 @@
   "hits": 4,
   "color": "niebieski",
   "title": "Kosa za 300 koła to budżetówka?",
-  "views": 46300,
+  "views": 46800,
   "t": 1794846056,
   "t_src": "page"
  },
@@ -772,8 +780,8 @@
   "t": 1794403437,
   "error": "ERROR: [TikTok] 7706904057855626518: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581384
+  "tries": 9,
+  "last_try": 1795628259
  },
  "7706704882543168800": {
   "banner": false,
@@ -867,8 +875,8 @@
   "t": 1794274235,
   "error": "ERROR: [TikTok] 7706206063497874720: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795581385
+  "tries": 9,
+  "last_try": 1795628260
  },
  "7706203222637120801": {
   "banner": false,
@@ -1126,8 +1134,8 @@
   "t": 1793732431,
   "error": "ERROR: [TikTok] 7703717357599870240: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795582043
+  "tries": 9,
+  "last_try": 1795628261
  },
  "7703715446918303009": {
   "banner": false,
@@ -1143,8 +1151,8 @@
   "t": 1793703058,
   "error": "ERROR: [TikTok] 7703714894176177440: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795582045
+  "tries": 9,
+  "last_try": 1795628261
  },
  "7703714434794933536": {
   "title": "S1mek kupił router do iPhone'a",
@@ -1152,8 +1160,8 @@
   "t": 1793660799,
   "error": "ERROR: [TikTok] 7703714434794933536: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795582046
+  "tries": 9,
+  "last_try": 1795628262
  },
  "7703604581850254624": {
   "banner": false,
@@ -1185,8 +1193,8 @@
   "t": 1793601614,
   "error": "ERROR: [TikTok] 7703339979249913121: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795582047
+  "tries": 9,
+  "last_try": 1795628263
  },
  "7703339846714035488": {
   "banner": false,
@@ -1274,8 +1282,8 @@
   "t": 1793371576,
   "error": "ERROR: [TikTok] 7702472243284069664: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795582049
+  "tries": 9,
+  "last_try": 1795628264
  },
  "7702197332762299680": {
   "title": "369 o planach na listopad",
@@ -1283,8 +1291,8 @@
   "t": 1793346018,
   "error": "ERROR: [TikTok] 7702197332762299680: Your IP address is blocked from accessing this post",
   "reason": "ukryty",
-  "tries": 8,
-  "last_try": 1795582051
+  "tries": 9,
+  "last_try": 1795628265
  },
  "7702196736319606049": {
   "banner": false,
@@ -1885,7 +1893,7 @@
   "near": 0.791,
   "near_sec": 53,
   "title": "369 o proszeniu o skiny",
-  "views": 234500,
+  "views": 234600,
   "t": 1788871448
  },
  "7671803781754965281": {
