@@ -455,7 +455,7 @@
 
   <section class="pay" id="sm">
     <h2>Wysyłka do StoreMedia</h2>
-    <p class="smhow">Wklej link do klipu (może być skrócony, skopiowany z telefonu). Bot odczyta datę i godzinę wrzucenia,
+    <p class="smhow">Wklej link do klipu (może być skrócony, skopiowany z telefonu). Bot odczyta z TikToka godzinę publikacji,
       a po 6 dniach przypomni na Telegramie, żeby wysłać klip do <a href="https://rushviral.com/tworca/wspolprace" target="_blank" rel="noopener">StoreMedia</a>.</p>
     <form class="payform" id="smForm" novalidate>
       <label>Link do klipu <input type="url" id="smLink" placeholder="https://vm.tiktok.com/…" autocomplete="off" required></label>
@@ -533,6 +533,14 @@
   // StoreMedia: przypomnienie 6 dni po wrzuceniu klipu (czas wrzucenia = numer filmu >> 32)
   const SM_DAYS = 6;
   const uploadedAt = (id) => /^\d+$/.test(String(id)) ? Number(BigInt(id) >> 32n) : 0;
+  // godzina publikacji: odczytana przez bota ze strony filmu, a bez niej z listy filmów (zaplanowany post
+  // wychodzi później niż wgranie, więc numer filmu >> 32 to tylko ostatnia deska ratunku)
+  function smPub(x) {
+    if (x.pub && !x.approx) return { t: x.pub, exact: true };
+    const v = state.videos.find(v => v.id === x.id);
+    if (v && v.t) return { t: v.t, exact: false };
+    return { t: x.pub || uploadedAt(x.id), exact: false };
+  }
   const fmtWaw = (t) => new Date(t * 1000).toLocaleString("pl-PL", { timeZone: "Europe/Warsaw", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" });
   const fmtDate = (t) => t ? new Date(t * 1000).toLocaleDateString("pl-PL", { day: "numeric", month: "short" }) : "";
   const fmtDay = (d) => d.toLocaleDateString("pl-PL", { day: "numeric", month: "numeric" });
@@ -857,7 +865,7 @@
     const tag = (text, cls) => { const s = document.createElement("span"); s.className = "tag" + (cls ? " " + cls : ""); s.textContent = text; d.appendChild(s); };
     if (v.manual) tag("zaznaczony ręcznie", "man");
     const sm = state.sm.find(x => x.id === v.id);
-    if (sm) tag(sm.sent ? "StoreMedia: przypomniano" : "StoreMedia " + fmtWaw(uploadedAt(v.id) + SM_DAYS * 86400), sm.sent ? "ok" : "");
+    if (sm) tag(sm.sent ? "StoreMedia: przypomniano" : "StoreMedia " + fmtWaw(smPub(sm).t + SM_DAYS * 86400), sm.sent ? "ok" : "");
     if (v.banner === null) tag(v.reason === "18+" ? "18+, wymaga logowania" : v.reason === "ukryty" ? "ukryty przez TikToka" : v.error ? "nie udało się pobrać" : "czeka na bota", "warn");
     mid.append(t, d);
     if (v.banner === true && v.views < MIN_VIEWS) {
@@ -1349,7 +1357,7 @@
     const list = $("smList");
     list.innerHTML = "";
     const now = Date.now() / 1000;
-    const items = smItems().map(x => ({ ...x, due: x.id ? uploadedAt(x.id) + SM_DAYS * 86400 : -Infinity }));
+    const items = smItems().map(x => { const p = x.id ? smPub(x) : null; return { ...x, pubT: p && p.t, exact: p && p.exact, due: p ? p.t + SM_DAYS * 86400 : -Infinity }; });
     // najpierw nieodczytane linki, potem czekające (najbliższy termin u góry), na końcu już przypomniane
     items.sort((a, b) => (!!a.sent - !!b.sent) || (a.sent ? b.sent - a.sent : a.due - b.due));
     for (const x of items) {
@@ -1367,7 +1375,7 @@
       d.appendChild(a);
       const n = document.createElement("div");
       n.className = "pn";
-      n.textContent = x.id ? "wrzucony " + fmtWaw(uploadedAt(x.id)) + " · przypomnienie " + fmtWaw(x.due)
+      n.textContent = x.id ? "opublikowany " + (x.exact ? "" : "ok. ") + fmtWaw(x.pubT) + " · przypomnienie " + fmtWaw(x.due)
         : x.error ? "nie da się odczytać linku: " + x.error : "bot odczyta datę ze skróconego linku";
       const token = smGet("smTokens", {})[x.key];
       if (token && !x.sent) {
@@ -1420,9 +1428,10 @@
       const real = r.up ? r.id : null;
       store.set("smPending", JSON.stringify([...smGet("smPending", []), { key: r.id, link: r.link, id: real, account: "369_shoter", at: Date.now() }]));
       store.set("smTokens", JSON.stringify({ ...smGet("smTokens", {}), [r.id]: r.token }));
-      $("smOk").textContent = real
-        ? "Dodano. Wrzucony " + fmtWaw(r.up) + ", przypomnienie na Telegramie " + fmtWaw(r.up + SM_DAYS * 86400) + "."
-        : "Dodano. Datę wrzucenia bot odczyta ze skróconego linku w ciągu kilkunastu minut.";
+      const known = real && state.videos.find(v => v.id === real && v.t);
+      $("smOk").textContent = known
+        ? "Dodano. Opublikowany " + fmtWaw(known.t) + ", przypomnienie na Telegramie " + fmtWaw(known.t + SM_DAYS * 86400) + "."
+        : "Dodano. Godzinę publikacji bot sprawdzi na TikToku w ciągu kilkunastu minut.";
       $("smOk").hidden = false;
       $("smForm").reset();
       renderSm();

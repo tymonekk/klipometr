@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """Przypomnienia na Telegramie o wysłaniu klipów do StoreMedia.
 
-Klipy dodajesz sam na stronie (sekcja „Wysyłka do StoreMedia”): strona tworzy na GitHubie plik
-  data/storemedia/<czas>.json  ->  {"link": "https://vm.tiktok.com/...", "added": "..."}
+Klipy dodajesz sam na stronie (sekcja „Wysyłka do StoreMedia”): Worker Cloudflare (worker/) zapisuje plik
+  data/storemedia/<numer filmu albo czas>.json  ->  {"link": "...", "added": "..."}
 Bot przy każdym przebiegu:
   1. zamienia link (też skrócony z telefonu) na numer filmu i link przeglądarkowy
      https://www.tiktok.com/@<konto>/video/<numer>,
-  2. liczy czas wrzucenia z numeru filmu (górne 32 bity, id >> 32) i termin = wrzucenie + 6 dni,
-  3. po terminie wysyła JEDNO przypomnienie na Telegram i zapisuje to w data/reminders.json.
-Usunięcie pliku z data/storemedia/ (na stronie „zmień / usuń”) kończy śledzenie klipu.
+  2. odczytuje godzinę PUBLIKACJI ze strony filmu na TikToku (createTime; zaplanowany post wychodzi
+     później niż wgranie, więc numer filmu >> 32 by tu kłamał) i zapamiętuje ją w data/reminders.json,
+  3. 6 dni po publikacji wysyła JEDNO przypomnienie na Telegram i zapisuje to w data/reminders.json.
+Gdy strony filmu nie da się odczytać (ukryty, 18+, jeszcze nie opublikowany), termin liczymy na razie
+z czasu z listy filmów bota albo z numeru filmu i próbujemy odczytać stronę przy każdym przebiegu.
+Usunięcie pliku z data/storemedia/ (na stronie „usuń”) kończy śledzenie klipu.
 
 Cisza nocna: przypomnienie, które wypadnie między QUIET_FROM a QUIET_TO czasu polskiego, czeka
 do rana (np. klip dodany już po terminie o 23:00 albo termin wypadający w nocy).
@@ -152,6 +155,31 @@ def load_links():
     return out
 
 
+def page_published(vid, account):
+    """Godzina publikacji ze strony filmu (createTime)."""
+    req = urllib.request.Request(browser_link(vid, account), headers={"User-Agent": UA, "Accept-Language": "pl,en;q=0.8"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        html = resp.read().decode("utf-8", "replace")
+    m = re.search(r'<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>(.*?)</script>', html, re.S)
+    if not m:
+        raise RuntimeError("brak danych na stronie filmu")
+    detail = json.loads(m.group(1))["__DEFAULT_SCOPE__"].get("webapp.video-detail") or {}
+    created = int(((detail.get("itemInfo") or {}).get("itemStruct") or {}).get("createTime") or 0)
+    if not created:
+        raise RuntimeError("film niewidoczny publicznie (%s)" % (detail.get("statusMsg") or detail.get("statusCode")))
+    return created
+
+
+def published(vid, s, banners):
+    """(godzina publikacji, dokładna?) – ze strony filmu, a bez niej z listy filmów bota albo z numeru filmu."""
+    if s.get("pub"):
+        return s["pub"], True
+    e = banners.get(vid) or {}
+    if e.get("t") and e.get("t_src") == "page":
+        return e["t"], True
+    return (e.get("t") or uploaded(vid)), False
+
+
 def entries(links, state):
     """Klipy z numerem filmu: [(klucz, numer, konto)] – z pliku stanu albo prosto z pełnego linku."""
     out = []
@@ -163,16 +191,15 @@ def entries(links, state):
     return out
 
 
-def message(vid, account, title, now):
-    up = uploaded(vid)
-    deadline = up + DEADLINE_S
+def message(vid, account, title, pub, exact, now):
+    deadline = pub + DEADLINE_S
     lines = ["📤 Wyślij klip do StoreMedia"]
     if title:
         lines.append(f"„{title}”")
     lines += [
         browser_link(vid, account),
         "",
-        f"Wrzucony: {fmt(up)}",
+        f"Opublikowany: {fmt(pub)}" + ("" if exact else " (przybliżona godzina)"),
         f"Minęło 6 dni: {fmt(deadline)}" + (f" (od {duration(now - deadline)})" if now - deadline >= 3600 else ""),
         "",
         "Wyślij teraz ten klip do StoreMedia, żeby został rozliczony:",
@@ -218,8 +245,12 @@ def run_test(vid):
             if not vid.isdigit():
                 warn("--id musi być numerem filmu")
             else:
-                title = read_json(BANNERS, {}).get(vid, {}).get("title", "")
-                send("[TEST, podgląd]\n" + message(vid, None, title, now))
+                banners = read_json(BANNERS, {})
+                try:
+                    pub, exact = page_published(vid, None), True
+                except Exception:  # noqa: BLE001
+                    pub, exact = published(vid, {}, banners)
+                send("[TEST, podgląd]\n" + message(vid, None, banners.get(vid, {}).get("title", ""), pub, exact, now))
                 log(f"Wysłano podgląd przypomnienia dla {vid}.")
     except TelegramError as exc:
         warn(f"Telegram: {exc}")
@@ -231,6 +262,7 @@ def run_build(out):
     """Lista dla strony: [{key, link, id, account, sent, error}] (najnowsze dodane najpierw)."""
     links = load_links()
     state = read_json(REMINDERS, {})
+    banners = read_json(BANNERS, {})
     known = {key: (vid, account) for key, vid, account in entries(links, state)}
     items = []
     for key in sorted(links, reverse=True):
@@ -238,7 +270,10 @@ def run_build(out):
         vid, account = known.get(key, (None, None))
         item = {"key": key, "link": links[key]}
         if vid:
-            item.update(id=vid, account=account or USER)
+            pub, exact = published(vid, s, banners)
+            item.update(id=vid, account=account or USER, pub=pub)
+            if not exact:
+                item["approx"] = True
         if s.get("sent"):
             item["sent"] = s["sent"]
         if s.get("error") and not vid:
@@ -268,16 +303,29 @@ def run(dry):
             vid, account = resolve(link)
             s.update(id=vid, account=account or USER)
             s.pop("error", None)
-            log(f"{key}: {link} -> {browser_link(vid, account)} (wrzucony {fmt(uploaded(vid))})")
+            log(f"{key}: {link} -> {browser_link(vid, account)}")
         except Exception as exc:  # noqa: BLE001
             s["error"] = str(exc)[:200]
             warn(f"{key}: nie udało się odczytać linku {link}: {exc}")
 
-    # 2. przypomnienia po terminie
+    # 2. godzina publikacji ze strony filmu (raz, potem zapamiętana)
     titles = read_json(BANNERS, {})
-    tracked = [(k, s["id"], s.get("account")) for k, s in state.items() if s.get("id")]
-    due = sorted((k, vid, acc) for k, vid, acc in tracked if uploaded(vid) + DEADLINE_S <= now and not state[k].get("sent"))
-    upcoming = sorted((uploaded(vid) + DEADLINE_S, vid) for k, vid, acc in tracked if uploaded(vid) + DEADLINE_S > now)
+    for key, s in state.items():
+        if s.get("id") and not s.get("pub") and not s.get("sent"):
+            try:
+                s["pub"] = page_published(s["id"], s.get("account"))
+                log(f"{s['id']}: opublikowany {fmt(s['pub'])}")
+            except Exception as exc:  # noqa: BLE001
+                log(f"{s['id']}: godzina publikacji na razie nieznana ({exc})")
+
+    # 3. przypomnienia 6 dni po publikacji
+    tracked = []
+    for k, s in state.items():
+        if s.get("id"):
+            pub, exact = published(s["id"], s, titles)
+            tracked.append((k, s["id"], s.get("account"), pub, exact))
+    due = sorted(t for t in tracked if t[3] + DEADLINE_S <= now and not state[t[0]].get("sent"))
+    upcoming = sorted((t[3] + DEADLINE_S, t[1]) for t in tracked if t[3] + DEADLINE_S > now)
     log(f"StoreMedia: śledzonych {len(tracked)}, do przypomnienia teraz {len(due)}"
         + (f", najbliższy termin {fmt(upcoming[0][0])} ({upcoming[0][1]})" if upcoming else ""))
 
@@ -287,8 +335,8 @@ def run(dry):
                                  encoding="utf-8")
 
     if dry:
-        for k, vid, acc in due:
-            log("---\n" + message(vid, acc, (titles.get(vid) or {}).get("title", ""), now))
+        for k, vid, acc, pub, exact in due:
+            log("---\n" + message(vid, acc, (titles.get(vid) or {}).get("title", ""), pub, exact, now))
         return 0
     hour = warsaw(now).hour
     if due and (hour >= QUIET_FROM or hour < QUIET_TO):
@@ -297,9 +345,9 @@ def run(dry):
     elif due and (not os.environ.get("TELEGRAM_BOT_TOKEN") or not os.environ.get("TELEGRAM_CHAT_ID")):
         log("Brak sekretów TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID, przypomnienia nie wychodzą.")
         due = []
-    for k, vid, acc in due:
+    for k, vid, acc, pub, exact in due:
         try:
-            send(message(vid, acc, (titles.get(vid) or {}).get("title", ""), now))
+            send(message(vid, acc, (titles.get(vid) or {}).get("title", ""), pub, exact, now))
         except TelegramError as exc:
             warn(f"Telegram ({vid}): {exc}")
             break   # zwykle błąd tokena/czatu albo sieci: spróbujemy przy następnym przebiegu
