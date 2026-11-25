@@ -1,7 +1,8 @@
 // Klipometr StoreMedia: zapisuje klipy dodane na stronie prosto do repo (Cloudflare Worker).
 //
 // POST /add     {"link": "..."}            -> zapisuje data/storemedia/<numer filmu>.json w repo
-// POST /remove  {"id": "...", "token": "..."} -> usuwa ten plik (token dostaje tylko urządzenie, które dodało klip)
+// POST /remove  {"id": "...", "token": "..."} albo {"id": "...", "pin": "..."} -> usuwa ten plik
+//               (token dostaje urządzenie, które dodało klip; kod DELETE_PIN działa na każdym urządzeniu)
 //
 // Gdy TikTok nie przekieruje skróconego linku (np. blokuje Cloudflare), Worker zapisuje sam link jako
 // data/storemedia/<czas>.json i numer filmu odczyta bot przy najbliższym przebiegu.
@@ -10,7 +11,8 @@
 // TikToka do numeru filmu. Przyjmuje tylko filmy z konta ACCOUNT. Przypomnienie na Telegramie wysyła potem
 // bot w GitHub Actions (scripts/remind.py), 6 dni po wrzuceniu klipu.
 //
-// Sekret Workera: GITHUB_TOKEN (fine-grained, tylko repo klipometr, Contents: Read and write).
+// Sekrety Workera: GITHUB_TOKEN (fine-grained, tylko repo klipometr, Contents: Read and write),
+//                  DELETE_PIN (kod usuwania klipów, wpisywany raz na urządzeniu).
 // Wdrożenie: patrz README (npx wrangler deploy w folderze worker/).
 
 const REPO = "tymonekk/klipometr";
@@ -43,7 +45,7 @@ export default {
     const path = new URL(req.url).pathname;
     try {
       if (path === "/add") return reply(200, await add(String(body.link || ""), env));
-      if (path === "/remove") return reply(200, await remove(String(body.id || ""), String(body.token || ""), env));
+      if (path === "/remove") return reply(200, await remove(String(body.id || ""), String(body.token || ""), String(body.pin || ""), env));
       return reply(404, { error: "Nie ma takiej ścieżki." });
     } catch (e) {
       return reply(e.status || 500, { error: e.status ? e.message : "Błąd Workera, spróbuj jeszcze raz." });
@@ -123,8 +125,10 @@ async function add(raw, env) {
   return { ok: true, id, link, up, token: await sign(env, id) };
 }
 
-async function remove(id, token, env) {
-  if (!/^\d{10,22}$/.test(id) || token !== await sign(env, id)) throw new Err(403, "Ten klip można usunąć tylko na urządzeniu, na którym go dodano.");
+async function remove(id, token, pin, env) {
+  if (!/^\d{10,22}$/.test(id)) throw new Err(400, "Zły numer klipu.");
+  const byPin = env.DELETE_PIN && pin && pin === env.DELETE_PIN;
+  if (!byPin && token !== await sign(env, id)) throw new Err(403, pin ? "Zły kod usuwania." : "Podaj kod usuwania.");
   const path = `data/storemedia/${id}.json`;
   const g = await gh(env, "GET", path);
   if (g.status === 404) return { ok: true };

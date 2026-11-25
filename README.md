@@ -29,7 +29,8 @@ Strona wysyła link do Workera Cloudflare (`worker/`), który idzie za przekiero
 sprawdza, że to film z @369_shoter, i zapisuje go w repo jako `data/storemedia/<numer>.json`.
 Bot (`scripts/remind.py`, krok w `scan.yml`) liczy czas wrzucenia (numer filmu >> 32, czas polski) i 6 dni później
 wysyła jedno przypomnienie na Telegram (zapis w `data/reminders.json`). Między 22:00 a 8:00 czeka do rana.
-„usuń” przy klipie działa na urządzeniu, na którym klip dodano.
+„usuń” przy klipie (zakładka „StoreMedia” w klipach): na urządzeniu, które dodało klip, od razu; na innych
+strona raz prosi o kod usuwania (sekret Workera `DELETE_PIN`, zmiana: `npx wrangler secret put DELETE_PIN` w `worker/`).
 
 Sekrety repo: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. Test: Actions → „Test Telegrama” → Run workflow.
 

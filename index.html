@@ -868,13 +868,12 @@
     if (sm) {
       tag(...smStatus(sm));
       if (sm.id) { const p = smPub(sm); d.title = "Opublikowany " + (p.exact ? "" : "ok. ") + fmtWaw(p.t) + ", przypomnienie " + fmtWaw(p.t + SM_DAYS * 86400); }
-      const token = v.smx && !sm.sent && smGet("smTokens", {})[sm.key];
-      if (token) {
+      if (v.smx) {
         const b = document.createElement("span");
         b.className = "tag rmtag";
         b.setAttribute("role", "button");
         b.textContent = "usuń";
-        b.onclick = (e) => { e.preventDefault(); e.stopPropagation(); smRemove(sm.key, token); };
+        b.onclick = (e) => { e.preventDefault(); e.stopPropagation(); smRemove(sm.key); };
         d.appendChild(b);
       }
     }
@@ -970,17 +969,18 @@
     // klipy dodane do wysyłki do StoreMedia: niezależnie od okresu, najbliższe przypomnienie u góry
     const smTab = smClips();
     if (smTab.length) tabs.push({ id: "sm", label: "StoreMedia (" + smTab.length + ")", items: smTab, keepOrder: true });
-    if (!tabs.some(t => t.id === tab)) tab = "banner";
-    chips($("tabs"), tabs, tab, (id) => { tab = id; store.set("tab2", id); shown = PAGE; animateList = true; render(); });
-    $("legend").hidden = tab !== "banner";
-    const curTab = tabs.find(t => t.id === tab);
+    // zapamiętana zakładka może jeszcze nie istnieć (StoreMedia przed wczytaniem danych): pokazujemy wtedy "Z banerem"
+    const activeTab = tabs.some(t => t.id === tab) ? tab : "banner";
+    chips($("tabs"), tabs, activeTab, (id) => { tab = id; store.set("tab2", id); shown = PAGE; animateList = true; render(); });
+    $("legend").hidden = activeTab !== "banner";
+    const curTab = tabs.find(t => t.id === activeTab);
     const items = curTab.keepOrder ? curTab.items : curTab.items.slice().sort((a, b) => (b.t || 0) - (a.t || 0));
     const list = $("list");
     list.innerHTML = "";
     if (!items.length) {
       const e = document.createElement("div");
       e.className = "empty";
-      e.textContent = !loaded ? "Wczytuję klipy…" : tab === "banner"
+      e.textContent = !loaded ? "Wczytuję klipy…" : activeTab === "banner"
         ? "W tym okresie nie ma klipów z banerem. Wybierz dłuższy okres."
         : "Brak klipów w tym okresie.";
       list.appendChild(e);
@@ -1385,15 +1385,36 @@
     const due = smPub(x).t + SM_DAYS * 86400, left = due - Date.now() / 1000;
     return left > 0 ? ["StoreMedia " + fmtWaw(due) + " · za " + leftTxt(left), ""] : ["wyślij do StoreMedia", "warn"];
   }
-  async function smRemove(key, token) {
-    if (!confirm("Usunąć ten klip z przypomnień StoreMedia?")) return;
+  // usuwanie: urządzenie, które dodało klip, ma jego token; na innych raz wpisujesz kod usuwania (DELETE_PIN Workera)
+  async function smRemove(key) {
+    if (!confirm("Usunąć ten klip z listy StoreMedia? Przypomnienie nie przyjdzie.")) return;
+    const tokens = smGet("smTokens", {});
     try {
-      await smCall("/remove", { id: key, token });
+      if (tokens[key]) {
+        try { await smCall("/remove", { id: key, token: tokens[key] }); }
+        catch { delete tokens[key]; store.set("smTokens", JSON.stringify(tokens)); return await smRemoveWithPin(key); }
+      } else return await smRemoveWithPin(key);
       store.set("smPending", JSON.stringify(smGet("smPending", []).filter(p => p.key !== key)));
       store.set("smRemoved", JSON.stringify([...smGet("smRemoved", []), { key, at: Date.now() }]));
       render();
     } catch (err) { alert(err.message); }
   }
+  async function smRemoveWithPin(key) {
+    const pin = store.get("smPin", "") || (prompt("Kod usuwania (wpisujesz raz na tym urządzeniu):") || "").trim();
+    if (!pin) return false;
+    try {
+      await smCall("/remove", { id: key, pin });
+    } catch (err) {
+      if (/kod/i.test(err.message)) store.set("smPin", "");
+      throw err;
+    }
+    store.set("smPin", pin);
+    store.set("smPending", JSON.stringify(smGet("smPending", []).filter(p => p.key !== key)));
+    store.set("smRemoved", JSON.stringify([...smGet("smRemoved", []), { key, at: Date.now() }]));
+    render();
+    return true;
+  }
+
 
   $("smForm").onsubmit = async (e) => {
     e.preventDefault();
