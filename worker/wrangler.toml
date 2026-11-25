@@ -1,0 +1,5 @@
+# Cloudflare Worker zapisujący klipy StoreMedia ze strony do repo (patrz src/index.js i README).
+name = "klipometr-storemedia"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+workers_dev = true

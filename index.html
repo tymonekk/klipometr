@@ -313,6 +313,7 @@
   .smhow a { color: var(--muted); }
   .payrow .pd a { color: var(--text); font-size: 14px; text-decoration: none; }
   .payrow .pa .tag { margin-left: 0; }
+  .payrow .rm { background: none; border: 0; padding: 0; color: var(--muted); font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
   .empty { color: var(--muted); text-align: center; padding: 28px 12px; border: 1px dashed var(--line); border-radius: 10px; }
   .more { display: block; margin: 12px auto 0; background: var(--tile); border: 1px solid var(--line); padding: 9px 16px; border-radius: 8px; cursor: pointer; }
   .more[hidden] { display: none; }
@@ -459,8 +460,8 @@
     <form class="payform" id="smForm" novalidate>
       <label>Link do klipu <input type="url" id="smLink" placeholder="https://vm.tiktok.com/…" autocomplete="off" required></label>
       <div class="err" id="smErr"></div>
-      <div class="acts"><button class="btn2 gold" type="submit">Dodaj i zapisz na GitHubie</button></div>
-      <div class="how">Otworzy się GitHub z gotowym wpisem. Kliknij tam zielone <b>Commit changes</b>. Klip pojawi się poniżej na wszystkich urządzeniach po około minucie.</div>
+      <div class="acts"><button class="btn2 gold" type="submit" id="smAdd">Dodaj klip</button></div>
+      <div class="how" id="smOk" hidden></div>
     </form>
     <div class="paylist" id="smList"></div>
   </section>
@@ -1317,21 +1318,31 @@
   };
 
   // ---------- StoreMedia: klipy dodane ręcznie, przypomnienie na Telegramie 6 dni po wrzuceniu ----------
-  // Strona tworzy na GitHubie plik data/storemedia/<czas>.json z linkiem; bot (scripts/remind.py) zamienia
-  // skrócony link na numer filmu i wysyła przypomnienie. Lista to data/storemedia.json składany przy publikacji.
+  // Strona wysyła link do Workera Cloudflare (worker/), który zapisuje go w repo jako data/storemedia/<numer>.json;
+  // bot (scripts/remind.py) wysyła przypomnienie. Lista to data/storemedia.json składany przy publikacji.
+  const SM_API = "";   // adres Workera po wdrożeniu, np. https://klipometr-storemedia.<konto>.workers.dev
   const TIKTOK_RE = /^https?:\/\/([a-z0-9-]+\.)*tiktok\.com(\/|$)/i;
   const smParse = (link) => { const m = /\/(?:video|photo|v)\/(\d{15,22})/.exec(link || ""); return m && TIKTOK_RE.test(link) ? m[1] : null; };
   const browserLink = (id, acc) => "https://www.tiktok.com/@" + (acc || "369_shoter") + "/video/" + id;
   const leftTxt = (s) => s >= 86400 ? Math.floor(s / 86400) + " d " + Math.floor(s % 86400 / 3600) + " h" : Math.max(1, Math.floor(s / 3600)) + " h";
-  function pendingSm() {
-    try { return JSON.parse(store.get("smPending", "[]")) || []; } catch { return []; }
-  }
-  // klipy wysłane z tego urządzenia, których GitHub jeszcze nie opublikował + lista z publikacji
+  const smGet = (k, def) => { try { return JSON.parse(store.get(k, "")) || def; } catch { return def; } };
+  // klipy dodane z tego urządzenia, których strona jeszcze nie opublikowała + lista z publikacji
+  // (bez usuniętych przed chwilą); tokeny usuwania zna tylko urządzenie, które dodało klip
   function smItems() {
     const known = new Set(state.sm.map(x => x.key));
-    const pend = pendingSm().filter(p => !known.has(p.key) && Date.now() - Number(p.key) < 2 * 86400e3);
+    const fresh = (p) => Date.now() - p.at < 2 * 86400e3;
+    const pend = smGet("smPending", []).filter(p => !known.has(p.key) && fresh(p));
+    const removed = smGet("smRemoved", []).filter(p => known.has(p.key) && fresh(p));
     store.set("smPending", JSON.stringify(pend));
-    return [...pend.map(p => ({ ...p, id: smParse(p.link), pending: true })), ...state.sm];
+    store.set("smRemoved", JSON.stringify(removed));
+    const gone = new Set(removed.map(p => p.key));
+    return [...pend.map(p => ({ ...p, pending: true })), ...state.sm.filter(x => !gone.has(x.key))];
+  }
+  async function smCall(path, body) {
+    const r = await fetch(SM_API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || "Nie udało się (" + r.status + ").");
+    return j;
   }
 
   function renderSm() {
@@ -1358,14 +1369,23 @@
       n.className = "pn";
       n.textContent = x.id ? "wrzucony " + fmtWaw(uploadedAt(x.id)) + " · przypomnienie " + fmtWaw(x.due)
         : x.error ? "nie da się odczytać linku: " + x.error : "bot odczyta datę ze skróconego linku";
-      if (x.pending) n.textContent += " · czeka na zapis na GitHubie";
-      else {
-        const e = document.createElement("a");
-        e.href = "https://github.com/" + REPO + "/blob/main/data/storemedia/" + x.key + ".json";
-        e.target = "_blank"; e.rel = "noopener";
-        e.textContent = "zmień / usuń";
-        e.title = "Na GitHubie: ikona ołówka zmienia, menu ⋯ → Delete file usuwa (koniec przypomnienia)";
-        n.append(" · ", e);
+      const token = smGet("smTokens", {})[x.key];
+      if (token && !x.sent) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "rm";
+        b.textContent = "usuń";
+        b.onclick = async () => {
+          if (!confirm("Usunąć ten klip z przypomnień?")) return;
+          b.disabled = true;
+          try {
+            await smCall("/remove", { id: x.key, token });
+            store.set("smPending", JSON.stringify(smGet("smPending", []).filter(p => p.key !== x.key)));
+            store.set("smRemoved", JSON.stringify([...smGet("smRemoved", []), { key: x.key, at: Date.now() }]));
+            renderSm();
+          } catch (err) { b.disabled = false; alert(err.message); }
+        };
+        n.append(" · ", b);
       }
       left.append(d, n);
       const st = document.createElement("div");
@@ -1381,24 +1401,37 @@
     }
   }
 
-  $("smForm").onsubmit = (e) => {
+  $("smForm").onsubmit = async (e) => {
     e.preventDefault();
     const raw = $("smLink").value.trim();
     // z telefonu bywa wklejany cały tekst udostępnienia: bierzemy pierwszy link
     let link = (/https?:\/\/\S+/i.exec(raw) || [raw])[0];
     if (link && !/^https?:\/\//i.test(link)) link = "https://" + link;
+    $("smOk").hidden = true;
     if (!TIKTOK_RE.test(link)) { $("smErr").textContent = "Wklej link do klipu z TikToka, np. https://vm.tiktok.com/…"; $("smLink").focus(); return; }
     const id = smParse(link);
     if (id && smItems().some(x => x.id === id)) { $("smErr").textContent = "Ten klip już jest na liście."; return; }
+    if (!SM_API) { $("smErr").textContent = "Dodawanie jeszcze nie działa: Worker nie jest wdrożony."; return; }
     $("smErr").textContent = "";
-    const key = String(Date.now());
-    const body = JSON.stringify({ link, added: new Date().toISOString() }, null, 1) + "\n";
-    const url = "https://github.com/" + REPO + "/new/main?filename=" + encodeURIComponent("data/storemedia/" + key + ".json") +
-      "&value=" + encodeURIComponent(body);
-    store.set("smPending", JSON.stringify([...pendingSm(), { key, link }]));
-    window.open(url, "_blank", "noopener");
-    $("smForm").reset();
-    renderSm();
+    $("smAdd").disabled = true;
+    $("smAdd").textContent = "Dodaję…";
+    try {
+      const r = await smCall("/add", { link });
+      const real = r.up ? r.id : null;
+      store.set("smPending", JSON.stringify([...smGet("smPending", []), { key: r.id, link: r.link, id: real, account: "369_shoter", at: Date.now() }]));
+      store.set("smTokens", JSON.stringify({ ...smGet("smTokens", {}), [r.id]: r.token }));
+      $("smOk").textContent = real
+        ? "Dodano. Wrzucony " + fmtWaw(r.up) + ", przypomnienie na Telegramie " + fmtWaw(r.up + SM_DAYS * 86400) + "."
+        : "Dodano. Datę wrzucenia bot odczyta ze skróconego linku w ciągu kilkunastu minut.";
+      $("smOk").hidden = false;
+      $("smForm").reset();
+      renderSm();
+    } catch (err) {
+      $("smErr").textContent = err.message === "Failed to fetch" ? "Brak połączenia z serwerem dodawania. Spróbuj za chwilę." : err.message;
+    } finally {
+      $("smAdd").disabled = false;
+      $("smAdd").textContent = "Dodaj klip";
+    }
   };
 
   // ---------- dane ----------

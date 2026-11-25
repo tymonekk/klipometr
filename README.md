@@ -24,13 +24,26 @@ Wpisz id filmu (liczba z linku do filmu) w `data/overrides.json`:
 
 ## Wysyłka do StoreMedia i przypomnienia
 
-Na stronie, w sekcji „Wysyłka do StoreMedia”, wklejasz link do klipu (też skrócony z telefonu) i zapisujesz go
-na GitHubie (`data/storemedia/<czas>.json`). Bot (`scripts/remind.py`, krok w `scan.yml`) zamienia link na numer
-filmu i link przeglądarkowy, liczy czas wrzucenia (numer filmu >> 32, czas polski) i 6 dni później wysyła jedno
-przypomnienie na Telegram (zapis w `data/reminders.json`). Między 22:00 a 8:00 czeka do rana.
-Usunięcie pliku klipu (na stronie „zmień / usuń”) kończy jego śledzenie.
+Na stronie, w sekcji „Wysyłka do StoreMedia”, wklejasz link do klipu (też skrócony z telefonu) i klikasz „Dodaj klip”.
+Strona wysyła link do Workera Cloudflare (`worker/`), który idzie za przekierowaniami TikToka do numeru filmu,
+sprawdza, że to film z @369_shoter, i zapisuje go w repo jako `data/storemedia/<numer>.json`.
+Bot (`scripts/remind.py`, krok w `scan.yml`) liczy czas wrzucenia (numer filmu >> 32, czas polski) i 6 dni później
+wysyła jedno przypomnienie na Telegram (zapis w `data/reminders.json`). Między 22:00 a 8:00 czeka do rana.
+„usuń” przy klipie działa na urządzeniu, na którym klip dodano.
 
 Sekrety repo: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. Test: Actions → „Test Telegrama” → Run workflow.
+
+### Worker (jednorazowo)
+
+1. Token GitHuba: Settings → Developer settings → Fine-grained tokens → tylko repo `klipometr`,
+   uprawnienie Contents: Read and write.
+2. W folderze `worker/`:
+   ```
+   npx wrangler login
+   npx wrangler deploy
+   npx wrangler secret put GITHUB_TOKEN
+   ```
+3. Adres z `wrangler deploy` (`https://klipometr-storemedia.<konto>.workers.dev`) wpisz w `SM_API` w `index.html`.
 
 ## Lokalnie
 
