@@ -309,6 +309,10 @@
   .tag.warn { background: rgba(228,174,57,.14); color: var(--warn); }
   .tag.ok { background: rgba(95,211,141,.14); color: var(--ok); }
   .tag.late { background: rgba(255,92,92,.16); color: #ff8a8a; }
+  .smhow { font-size: 13px; color: var(--muted); line-height: 1.45; margin: 0; }
+  .smhow a { color: var(--muted); }
+  .payrow .pd a { color: var(--text); font-size: 14px; text-decoration: none; }
+  .payrow .pa .tag { margin-left: 0; }
   .empty { color: var(--muted); text-align: center; padding: 28px 12px; border: 1px dashed var(--line); border-radius: 10px; }
   .more { display: block; margin: 12px auto 0; background: var(--tile); border: 1px solid var(--line); padding: 9px 16px; border-radius: 8px; cursor: pointer; }
   .more[hidden] { display: none; }
@@ -448,6 +452,19 @@
     <div class="paylist" id="payList"></div>
   </section>
 
+  <section class="pay" id="sm">
+    <h2>Wysyłka do StoreMedia</h2>
+    <p class="smhow">Wklej link do klipu (może być skrócony, skopiowany z telefonu). Bot odczyta datę i godzinę wrzucenia,
+      a po 6 dniach przypomni na Telegramie, żeby wysłać klip do <a href="https://rushviral.com/tworca/wspolprace" target="_blank" rel="noopener">StoreMedia</a>.</p>
+    <form class="payform" id="smForm" novalidate>
+      <label>Link do klipu <input type="url" id="smLink" placeholder="https://vm.tiktok.com/…" autocomplete="off" required></label>
+      <div class="err" id="smErr"></div>
+      <div class="acts"><button class="btn2 gold" type="submit">Dodaj i zapisz na GitHubie</button></div>
+      <div class="how">Otworzy się GitHub z gotowym wpisem. Kliknij tam zielone <b>Commit changes</b>. Klip pojawi się poniżej na wszystkich urządzeniach po około minucie.</div>
+    </form>
+    <div class="paylist" id="smList"></div>
+  </section>
+
   </div>
   <div class="colB">
   <section class="wk">
@@ -482,9 +499,6 @@
     TikTok podaje duże liczby z dokładnością do 100. Filmy ukryte przez TikToka (widoczne tylko dla Ciebie)
     i oznaczone jako 18+ nie dają się sprawdzić automatycznie.
     <br>Bot się pomylił? Dopisz numer filmu w <a href="https://github.com/tymonekk/klipometr/blob/main/data/overrides.json">data/overrides.json</a>.
-    <br>Klip z banerem trzeba wysłać do <a href="https://rushviral.com/tworca/wspolprace">StoreMedia</a> do 6 dni od wrzucenia (po terminie przyjdzie przypomnienie na Telegramie).
-    Po wysłaniu dopisz numer filmu do „wyslane” w <a href="https://github.com/tymonekk/klipometr/edit/main/data/storemedia.json">data/storemedia.json</a>,
-    a ukryty albo 18+ film z banerem do „dodatkowe”.
   </footer>
 </div>
 
@@ -515,7 +529,7 @@
   const fmtUsd = (n) => fmt2(n) + " $";
   const fmtPln = (n) => fmt2(n) + " zł";
   const fmtInt = (n) => Math.round(n).toLocaleString("pl-PL");
-  // StoreMedia: klip z banerem trzeba tam wysłać do 6 dni od wrzucenia (czas wrzucenia = numer filmu >> 32)
+  // StoreMedia: przypomnienie 6 dni po wrzuceniu klipu (czas wrzucenia = numer filmu >> 32)
   const SM_DAYS = 6;
   const uploadedAt = (id) => /^\d+$/.test(String(id)) ? Number(BigInt(id) >> 32n) : 0;
   const fmtWaw = (t) => new Date(t * 1000).toLocaleString("pl-PL", { timeZone: "Europe/Warsaw", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" });
@@ -601,7 +615,7 @@
   if (!periods.some(p => p.id === period)) period = "d7";
   let tab = store.get("tab2", "banner");
   let shown = PAGE;
-  let state = { videos: [], rate: null, rateDate: null, botAt: null, history: {}, payouts: [], errors: [] };
+  let state = { videos: [], rate: null, rateDate: null, botAt: null, history: {}, payouts: [], sm: [], errors: [] };
   let firstPaint = true;
   let animateList = true;
 
@@ -840,16 +854,9 @@
     d.className = "d";
     d.textContent = fmtDate(v.t);
     const tag = (text, cls) => { const s = document.createElement("span"); s.className = "tag" + (cls ? " " + cls : ""); s.textContent = text; d.appendChild(s); };
-    if (v.manual) tag(v.extra ? "dodany ręcznie" : "zaznaczony ręcznie", "man");
-    if (v.sm) {
-      const due = v.sm.due;
-      if (v.sm.sent) tag("wysłano do StoreMedia", "ok");
-      else if (Date.now() / 1000 < due) {
-        const left = due - Date.now() / 1000;
-        tag("StoreMedia do " + fmtWaw(due) + " · za " + (left >= 86400 ? Math.floor(left / 86400) + " d" : Math.max(1, Math.floor(left / 3600)) + " h"));
-      } else tag("po terminie, wyślij do StoreMedia", "late");
-      d.title = "Wrzucony " + fmtWaw(v.sm.up) + ", termin StoreMedia " + fmtWaw(due);
-    }
+    if (v.manual) tag("zaznaczony ręcznie", "man");
+    const sm = state.sm.find(x => x.id === v.id);
+    if (sm) tag(sm.sent ? "StoreMedia: przypomniano" : "StoreMedia " + fmtWaw(uploadedAt(v.id) + SM_DAYS * 86400), sm.sent ? "ok" : "");
     if (v.banner === null) tag(v.reason === "18+" ? "18+, wymaga logowania" : v.reason === "ukryty" ? "ukryty przez TikToka" : v.error ? "nie udało się pobrać" : "czeka na bota", "warn");
     mid.append(t, d);
     if (v.banner === true && v.views < MIN_VIEWS) {
@@ -931,6 +938,7 @@
 
     if (loaded) renderChart();
     renderPayouts();
+    renderSm();
 
     // lista
     const hidden = vids.filter(v => v.banner === null);
@@ -939,9 +947,6 @@
       { id: "none", label: "Bez baneru (" + vids.filter(v => v.banner === false).length + ")", items: vids.filter(v => v.banner === false) },
       { id: "hidden", label: "Nie do sprawdzenia (" + hidden.length + ")", items: hidden },
     ];
-    // do wysłania do StoreMedia: niezależnie od wybranego okresu
-    const toSend = state.videos.filter(v => v.banner === true && v.sm && !v.sm.sent);
-    if (toSend.length) tabs.push({ id: "sm", label: "Do wysłania do StoreMedia (" + toSend.length + ")", items: toSend });
     if (!tabs.some(t => t.id === tab)) tab = "banner";
     chips($("tabs"), tabs, tab, (id) => { tab = id; store.set("tab2", id); shown = PAGE; animateList = true; render(); });
     $("legend").hidden = tab !== "banner";
@@ -1311,6 +1316,91 @@
     renderPayouts();
   };
 
+  // ---------- StoreMedia: klipy dodane ręcznie, przypomnienie na Telegramie 6 dni po wrzuceniu ----------
+  // Strona tworzy na GitHubie plik data/storemedia/<czas>.json z linkiem; bot (scripts/remind.py) zamienia
+  // skrócony link na numer filmu i wysyła przypomnienie. Lista to data/storemedia.json składany przy publikacji.
+  const TIKTOK_RE = /^https?:\/\/([a-z0-9-]+\.)*tiktok\.com(\/|$)/i;
+  const smParse = (link) => { const m = /\/(?:video|photo|v)\/(\d{15,22})/.exec(link || ""); return m && TIKTOK_RE.test(link) ? m[1] : null; };
+  const browserLink = (id, acc) => "https://www.tiktok.com/@" + (acc || "369_shoter") + "/video/" + id;
+  const leftTxt = (s) => s >= 86400 ? Math.floor(s / 86400) + " d " + Math.floor(s % 86400 / 3600) + " h" : Math.max(1, Math.floor(s / 3600)) + " h";
+  function pendingSm() {
+    try { return JSON.parse(store.get("smPending", "[]")) || []; } catch { return []; }
+  }
+  // klipy wysłane z tego urządzenia, których GitHub jeszcze nie opublikował + lista z publikacji
+  function smItems() {
+    const known = new Set(state.sm.map(x => x.key));
+    const pend = pendingSm().filter(p => !known.has(p.key) && Date.now() - Number(p.key) < 2 * 86400e3);
+    store.set("smPending", JSON.stringify(pend));
+    return [...pend.map(p => ({ ...p, id: smParse(p.link), pending: true })), ...state.sm];
+  }
+
+  function renderSm() {
+    const list = $("smList");
+    list.innerHTML = "";
+    const now = Date.now() / 1000;
+    const items = smItems().map(x => ({ ...x, due: x.id ? uploadedAt(x.id) + SM_DAYS * 86400 : -Infinity }));
+    // najpierw nieodczytane linki, potem czekające (najbliższy termin u góry), na końcu już przypomniane
+    items.sort((a, b) => (!!a.sent - !!b.sent) || (a.sent ? b.sent - a.sent : a.due - b.due));
+    for (const x of items) {
+      const v = x.id && state.videos.find(v => v.id === x.id);
+      const row = document.createElement("div");
+      row.className = "payrow" + (x.pending ? " pending" : "");
+      const left = document.createElement("div");
+      left.style.minWidth = "0";
+      const d = document.createElement("div");
+      d.className = "pd pn";
+      const a = document.createElement("a");
+      a.href = x.id ? browserLink(x.id, x.account) : x.link;
+      a.target = "_blank"; a.rel = "noopener";
+      a.textContent = (v && v.title) || (x.id ? "Film " + x.id : x.link);
+      d.appendChild(a);
+      const n = document.createElement("div");
+      n.className = "pn";
+      n.textContent = x.id ? "wrzucony " + fmtWaw(uploadedAt(x.id)) + " · przypomnienie " + fmtWaw(x.due)
+        : x.error ? "nie da się odczytać linku: " + x.error : "bot odczyta datę ze skróconego linku";
+      if (x.pending) n.textContent += " · czeka na zapis na GitHubie";
+      else {
+        const e = document.createElement("a");
+        e.href = "https://github.com/" + REPO + "/blob/main/data/storemedia/" + x.key + ".json";
+        e.target = "_blank"; e.rel = "noopener";
+        e.textContent = "zmień / usuń";
+        e.title = "Na GitHubie: ikona ołówka zmienia, menu ⋯ → Delete file usuwa (koniec przypomnienia)";
+        n.append(" · ", e);
+      }
+      left.append(d, n);
+      const st = document.createElement("div");
+      st.className = "pa";
+      const t = document.createElement("span");
+      const [txt, cls] = x.sent ? ["przypomniano", "ok"] : x.error ? ["zły link", "late"] : !x.id ? ["czeka na bota", ""]
+        : now < x.due ? ["za " + leftTxt(x.due - now), ""] : ["wyślij do StoreMedia", "warn"];
+      t.className = "tag" + (cls ? " " + cls : "");
+      t.textContent = txt;
+      st.appendChild(t);
+      row.append(left, st);
+      list.appendChild(row);
+    }
+  }
+
+  $("smForm").onsubmit = (e) => {
+    e.preventDefault();
+    const raw = $("smLink").value.trim();
+    // z telefonu bywa wklejany cały tekst udostępnienia: bierzemy pierwszy link
+    let link = (/https?:\/\/\S+/i.exec(raw) || [raw])[0];
+    if (link && !/^https?:\/\//i.test(link)) link = "https://" + link;
+    if (!TIKTOK_RE.test(link)) { $("smErr").textContent = "Wklej link do klipu z TikToka, np. https://vm.tiktok.com/…"; $("smLink").focus(); return; }
+    const id = smParse(link);
+    if (id && smItems().some(x => x.id === id)) { $("smErr").textContent = "Ten klip już jest na liście."; return; }
+    $("smErr").textContent = "";
+    const key = String(Date.now());
+    const body = JSON.stringify({ link, added: new Date().toISOString() }, null, 1) + "\n";
+    const url = "https://github.com/" + REPO + "/new/main?filename=" + encodeURIComponent("data/storemedia/" + key + ".json") +
+      "&value=" + encodeURIComponent(body);
+    store.set("smPending", JSON.stringify([...pendingSm(), { key, link }]));
+    window.open(url, "_blank", "noopener");
+    $("smForm").reset();
+    renderSm();
+  };
+
   // ---------- dane ----------
   async function getText(url) {
     const r = await fetch(url + (url.includes("?") ? "&" : "?") + "t=" + Date.now(), { cache: "no-store" });
@@ -1331,7 +1421,7 @@
       getText("data/views.json").then(JSON.parse).catch(() => { errors.push("wyświetleń z bota"); return { at: 0, v: {}, h: {} }; }),
       fetch("https://api.nbp.pl/api/exchangerates/rates/a/usd/?format=json").then(r => r.json()).catch(() => { errors.push("kursu NBP"); return null; }),
       getText("data/payouts.json").then(JSON.parse).catch(() => null),
-      getText("data/storemedia.json").then(JSON.parse).catch(() => ({})),
+      getText("data/storemedia.json").then(JSON.parse).catch(() => null),
     ]);
 
     const map = new Map();
@@ -1352,22 +1442,6 @@
     }
     for (const id of (overrides.baner || [])) { const v = map.get(String(id)); if (v) { v.banner = true; v.manual = true; } }
     for (const id of (overrides.bez_baneru || [])) { const v = map.get(String(id)); if (v) { v.banner = false; v.manual = true; } }
-    // filmy dopisane ręcznie w data/storemedia.json (ukryte, 18+), których bot nie widzi
-    for (const raw of (sm.dodatkowe || [])) {
-      const id = String(raw);
-      if (!/^\d+$/.test(id)) continue;
-      const v = map.get(id) || { id, title: "", t: uploadedAt(id), views: (fresh.v || {})[id] || 0, error: null, reason: null, extra: true };
-      if (!(overrides.bez_baneru || []).map(String).includes(id)) { v.banner = true; v.manual = true; }
-      map.set(id, v);
-    }
-    // termin i status wysyłki do StoreMedia (klipy wrzucone od daty "od")
-    const smSent = new Set((sm.wyslane || []).map(String));
-    const smFrom = /^\d{4}-\d{2}-\d{2}$/.test(sm.od || "") ? new Date(sm.od + "T00:00:00").getTime() / 1000 : Infinity;
-    for (const v of map.values()) {
-      const up = uploadedAt(v.id);
-      v.sm = v.banner === true && up && up >= smFrom ? { up, due: up + SM_DAYS * 86400, sent: smSent.has(v.id) } : null;
-    }
-
     if (map.size || !state.videos.length) {
       state = {
         videos: [...map.values()],
@@ -1376,6 +1450,7 @@
         botAt: fresh.at ? fresh.at * 1000 : null,
         history: fresh.h || {},
         payouts: Array.isArray(payouts) ? payouts : state.payouts,
+        sm: Array.isArray(sm) ? sm : state.sm,
         errors,
       };
     } else {

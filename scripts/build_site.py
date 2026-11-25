@@ -25,6 +25,7 @@ def main():
         shutil.copytree(ROOT / d, OUT / d)
     (OUT / ".nojekyll").write_text("")
     subprocess.run([sys.executable, str(ROOT / "scripts" / "payouts.py"), str(OUT / "data" / "payouts.json")], check=True)
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "remind.py"), "--build", str(OUT / "data" / "storemedia.json")], check=True)
     missing = [f for f in FILES + ["icons/icon-192.png", "icons/icon-512.png"] if not (OUT / f).exists()]
     if missing:
         sys.exit("Brakuje plików: " + ", ".join(missing))

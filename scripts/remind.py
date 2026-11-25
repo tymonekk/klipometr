@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
-"""Przypomnienia na Telegramie o wysłaniu klipów z banerem do StoreMedia.
+"""Przypomnienia na Telegramie o wysłaniu klipów do StoreMedia.
 
-Termin to 6 dni od wrzucenia filmu. Czas wrzucenia to górne 32 bity numeru filmu (id >> 32),
-a nie godzina, o której bot wykrył film. Po terminie, jeśli klipu nie ma w data/storemedia.json
-→ "wyslane", bot wysyła jedno przypomnienie i zapisuje to w data/reminders.json.
+Klipy dodajesz sam na stronie (sekcja „Wysyłka do StoreMedia”): strona tworzy na GitHubie plik
+  data/storemedia/<czas>.json  ->  {"link": "https://vm.tiktok.com/...", "added": "..."}
+Bot przy każdym przebiegu:
+  1. zamienia link (też skrócony z telefonu) na numer filmu i link przeglądarkowy
+     https://www.tiktok.com/@<konto>/video/<numer>,
+  2. liczy czas wrzucenia z numeru filmu (górne 32 bity, id >> 32) i termin = wrzucenie + 6 dni,
+  3. po terminie wysyła JEDNO przypomnienie na Telegram i zapisuje to w data/reminders.json.
+Usunięcie pliku z data/storemedia/ (na stronie „zmień / usuń”) kończy śledzenie klipu.
 
-Klipy brane pod uwagę: baner wykryty przez bota (data/banners.json) + overrides.json → "baner"
-+ storemedia.json → "dodatkowe" (ukryte i 18+, których bot nie widzi), bez overrides.json →
-"bez_baneru" i bez filmów wrzuconych przed storemedia.json → "od".
-
-Cisza nocna: przypomnienie, które wypadnie między QUIET_FROM a QUIET_TO czasu polskiego,
-czeka do rana (np. film, który bot zobaczy dopiero po terminie, o 3 w nocy).
+Cisza nocna: przypomnienie, które wypadnie między QUIET_FROM a QUIET_TO czasu polskiego, czeka
+do rana (np. klip dodany już po terminie o 23:00 albo termin wypadający w nocy).
 
 Token i czat tylko ze zmiennych środowiska TELEGRAM_BOT_TOKEN i TELEGRAM_CHAT_ID (sekrety repo).
 Skrypt nigdy ich nie wypisuje i zawsze kończy się kodem 0, żeby nie zatrzymać bota.
 
 Uruchomienie:
-  python scripts/remind.py --dry-run         # pokaż, co by poszło, nic nie wysyłaj
+  python scripts/remind.py                   # przebieg bota
+  python scripts/remind.py --dry-run         # pokaż, co by poszło, nic nie wysyłaj i nie zapisuj
   python scripts/remind.py --test [--id ID]  # wiadomość testowa (+ podgląd przypomnienia dla ID)
+  python scripts/remind.py --build PLIK      # lista klipów dla strony (bez sieci, przy publikacji)
 """
 import argparse
 import calendar
@@ -25,6 +28,7 @@ import datetime
 import json
 import os
 import pathlib
+import re
 import sys
 import time
 import urllib.error
@@ -33,13 +37,17 @@ import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 BANNERS = ROOT / "data" / "banners.json"
-OVERRIDES = ROOT / "data" / "overrides.json"
-STOREMEDIA = ROOT / "data" / "storemedia.json"
+SRC = ROOT / "data" / "storemedia"
 REMINDERS = ROOT / "data" / "reminders.json"
 USER = "369_shoter"
 STOREMEDIA_URL = "https://rushviral.com/tworca/wspolprace"
 DEADLINE_S = 6 * 86400
 QUIET_FROM, QUIET_TO = 22, 8   # godziny czasu polskiego
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
+TIKTOK_HOST = re.compile(r"^([a-z0-9-]+\.)*tiktok\.com$", re.I)
+VIDEO_ID = re.compile(r"/(?:video|photo|v)/(\d{15,22})")
+ACCOUNT = re.compile(r"/@([\w.]+)")
 
 
 def log(msg):
@@ -79,12 +87,6 @@ def fmt(ts):
     return warsaw(ts).strftime("%d.%m.%Y, %H:%M:%S")
 
 
-def warsaw_midnight(day):
-    """Północ czasu polskiego danego dnia ("RRRR-MM-DD") jako timestamp."""
-    naive = calendar.timegm(time.strptime(day, "%Y-%m-%d"))
-    return naive - warsaw_offset(naive)
-
-
 def uploaded(vid):
     return int(vid) >> 32
 
@@ -95,42 +97,86 @@ def duration(seconds):
     return " ".join(parts) or "chwili"
 
 
-# ---------- które klipy ----------
-def clips():
-    """{id: tytuł} klipów z banerem, które czekają na wysyłkę do StoreMedia (bez wysłanych i sprzed "od")."""
-    banners = read_json(BANNERS, {})
-    over = read_json(OVERRIDES, {})
-    sm = read_json(STOREMEDIA, {})
-    ids = {k for k, e in banners.items() if e.get("banner")}
-    ids |= {str(i) for i in over.get("baner", [])}
-    ids |= {str(i) for i in sm.get("dodatkowe", [])}
-    ids -= {str(i) for i in over.get("bez_baneru", [])}
-    ids -= {str(i) for i in sm.get("wyslane", [])}
-    ids = {i for i in ids if i.isdigit()}
+def browser_link(vid, account=USER):
+    return f"https://www.tiktok.com/@{account or USER}/video/{vid}"
+
+
+# ---------- linki ----------
+def normalize(link):
+    """Link z https://, albo ValueError, gdy to nie TikTok."""
+    link = link.strip()
+    if not re.match(r"^https?://", link, re.I):
+        link = "https://" + link
+    if not TIKTOK_HOST.match(urllib.parse.urlsplit(link).hostname or ""):
+        raise ValueError("to nie jest link do TikToka")
+    return link
+
+
+def parse_link(link):
+    """(numer filmu, konto) z pełnego linku TikToka, bez sieci. (None, None), gdy to link skrócony albo nie TikTok."""
     try:
-        since = warsaw_midnight(str(sm.get("od") or "2000-01-01"))
+        link = normalize(link)
     except ValueError:
-        warn("storemedia.json: zła data w 'od' (ma być RRRR-MM-DD), pomijam ten filtr")
-        since = 0
-    return {i: (banners.get(i) or {}).get("title", "") for i in ids if uploaded(i) >= since}
+        return None, None
+    m = VIDEO_ID.search(link)
+    if not m:
+        return None, None
+    a = ACCOUNT.search(link)
+    return m.group(1), (a.group(1) if a else None)
 
 
-def message(vid, title, now):
+def resolve(link):
+    """Numer filmu i konto z dowolnego linku TikToka (skrócony vm./vt.tiktok.com albo /t/ – przez przekierowanie)."""
+    link = normalize(link)
+    vid, account = parse_link(link)
+    if vid:
+        return vid, account
+    req = urllib.request.Request(link, headers={"User-Agent": UA, "Accept-Language": "pl,en;q=0.8"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        final = resp.geturl()
+    vid, account = parse_link(final)
+    if not vid:
+        raise ValueError("link nie prowadzi do filmu")
+    return vid, account
+
+
+def load_links():
+    """{klucz pliku: link} z data/storemedia/*.json (błędny plik pomijamy z ostrzeżeniem)."""
+    out = {}
+    for f in sorted(SRC.glob("*.json")) if SRC.exists() else []:
+        link = str(read_json(f, {}).get("link") or "").strip()
+        if link:
+            out[f.stem] = link[:500]
+        else:
+            warn(f"{f.name}: brak pola \"link\", pomijam")
+    return out
+
+
+def entries(links, state):
+    """Klipy z numerem filmu: [(klucz, numer, konto)] – z pliku stanu albo prosto z pełnego linku."""
+    out = []
+    for key, link in links.items():
+        s = state.get(key) or {}
+        vid, account = (s.get("id"), s.get("account")) if s.get("id") else parse_link(link)
+        if vid:
+            out.append((key, vid, account))
+    return out
+
+
+def message(vid, account, title, now):
     up = uploaded(vid)
     deadline = up + DEADLINE_S
     lines = ["📤 Wyślij klip do StoreMedia"]
     if title:
         lines.append(f"„{title}”")
     lines += [
-        f"https://www.tiktok.com/@{USER}/video/{vid}",
+        browser_link(vid, account),
         "",
         f"Wrzucony: {fmt(up)}",
-        f"Termin (6 dni): {fmt(deadline)}" + (f" (po terminie od {duration(now - deadline)})" if now - deadline >= 3600 else ""),
+        f"Minęło 6 dni: {fmt(deadline)}" + (f" (od {duration(now - deadline)})" if now - deadline >= 3600 else ""),
         "",
-        "Klip nie jest oznaczony jako wysłany do StoreMedia. Wyślij go, żeby został rozliczony:",
+        "Wyślij teraz ten klip do StoreMedia, żeby został rozliczony:",
         STOREMEDIA_URL,
-        "",
-        "Po wysłaniu dopisz numer filmu do data/storemedia.json → \"wyslane\".",
     ]
     return "\n".join(lines)
 
@@ -162,7 +208,7 @@ def send(text):
         raise TelegramError(str(body.get("description", "nieznany błąd")).replace(token, "***"))
 
 
-# ---------- główne ----------
+# ---------- tryby ----------
 def run_test(vid):
     now = int(time.time())
     try:
@@ -172,11 +218,96 @@ def run_test(vid):
             if not vid.isdigit():
                 warn("--id musi być numerem filmu")
             else:
-                send("[TEST, podgląd]\n" + message(vid, read_json(BANNERS, {}).get(vid, {}).get("title", ""), now))
+                title = read_json(BANNERS, {}).get(vid, {}).get("title", "")
+                send("[TEST, podgląd]\n" + message(vid, None, title, now))
                 log(f"Wysłano podgląd przypomnienia dla {vid}.")
     except TelegramError as exc:
         warn(f"Telegram: {exc}")
         return 1
+    return 0
+
+
+def run_build(out):
+    """Lista dla strony: [{key, link, id, account, sent, error}] (najnowsze dodane najpierw)."""
+    links = load_links()
+    state = read_json(REMINDERS, {})
+    known = {key: (vid, account) for key, vid, account in entries(links, state)}
+    items = []
+    for key in sorted(links, reverse=True):
+        s = state.get(key) or {}
+        vid, account = known.get(key, (None, None))
+        item = {"key": key, "link": links[key]}
+        if vid:
+            item.update(id=vid, account=account or USER)
+        if s.get("sent"):
+            item["sent"] = s["sent"]
+        if s.get("error") and not vid:
+            item["error"] = s["error"]
+        items.append(item)
+    out = pathlib.Path(out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(items, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    log(f"StoreMedia: {len(items)} klipów -> {out}")
+    return 0
+
+
+def run(dry):
+    now = int(time.time())
+    links = load_links()
+    state = read_json(REMINDERS, {})
+    before = json.dumps(state, sort_keys=True)
+    # usunięte z data/storemedia/ przestajemy śledzić
+    state = {k: v for k, v in state.items() if k in links}
+
+    # 1. linki -> numer filmu (skrócone przez przekierowanie TikToka)
+    for key, link in links.items():
+        s = state.setdefault(key, {})
+        if s.get("id"):
+            continue
+        try:
+            vid, account = resolve(link)
+            s.update(id=vid, account=account or USER)
+            s.pop("error", None)
+            log(f"{key}: {link} -> {browser_link(vid, account)} (wrzucony {fmt(uploaded(vid))})")
+        except Exception as exc:  # noqa: BLE001
+            s["error"] = str(exc)[:200]
+            warn(f"{key}: nie udało się odczytać linku {link}: {exc}")
+
+    # 2. przypomnienia po terminie
+    titles = read_json(BANNERS, {})
+    tracked = [(k, s["id"], s.get("account")) for k, s in state.items() if s.get("id")]
+    due = sorted((k, vid, acc) for k, vid, acc in tracked if uploaded(vid) + DEADLINE_S <= now and not state[k].get("sent"))
+    upcoming = sorted((uploaded(vid) + DEADLINE_S, vid) for k, vid, acc in tracked if uploaded(vid) + DEADLINE_S > now)
+    log(f"StoreMedia: śledzonych {len(tracked)}, do przypomnienia teraz {len(due)}"
+        + (f", najbliższy termin {fmt(upcoming[0][0])} ({upcoming[0][1]})" if upcoming else ""))
+
+    def save():
+        if not dry and json.dumps(state, sort_keys=True) != before:
+            REMINDERS.write_text(json.dumps(dict(sorted(state.items(), reverse=True)), ensure_ascii=False, indent=1) + "\n",
+                                 encoding="utf-8")
+
+    if dry:
+        for k, vid, acc in due:
+            log("---\n" + message(vid, acc, (titles.get(vid) or {}).get("title", ""), now))
+        return 0
+    hour = warsaw(now).hour
+    if due and (hour >= QUIET_FROM or hour < QUIET_TO):
+        log(f"Cisza nocna ({QUIET_FROM}:00–{QUIET_TO}:00): {len(due)} przypomnień czeka do rana.")
+        due = []
+    elif due and (not os.environ.get("TELEGRAM_BOT_TOKEN") or not os.environ.get("TELEGRAM_CHAT_ID")):
+        log("Brak sekretów TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID, przypomnienia nie wychodzą.")
+        due = []
+    for k, vid, acc in due:
+        try:
+            send(message(vid, acc, (titles.get(vid) or {}).get("title", ""), now))
+        except TelegramError as exc:
+            warn(f"Telegram ({vid}): {exc}")
+            break   # zwykle błąd tokena/czatu albo sieci: spróbujemy przy następnym przebiegu
+        state[k]["sent"] = now
+        save()
+        log(f"Przypomnienie wysłane: {vid}")
+        time.sleep(1)
+    save()
     return 0
 
 
@@ -189,41 +320,13 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="tylko pokaż, nic nie wysyłaj i nie zapisuj")
     ap.add_argument("--test", action="store_true", help="wyślij wiadomość testową")
     ap.add_argument("--id", default="", help="z --test: dołącz podgląd przypomnienia dla tego filmu")
+    ap.add_argument("--build", metavar="PLIK", help="zapisz listę klipów dla strony")
     args = ap.parse_args()
     if args.test:
         return run_test(args.id.strip())
-
-    now = int(time.time())
-    sent = read_json(REMINDERS, {})
-    waiting = clips()
-    due = sorted(i for i in waiting if uploaded(i) + DEADLINE_S <= now and i not in sent)
-    upcoming = sorted((uploaded(i) + DEADLINE_S, i) for i in waiting if uploaded(i) + DEADLINE_S > now)
-    log(f"StoreMedia: czeka na wysyłkę {len(waiting)}, po terminie bez przypomnienia {len(due)}"
-        + (f", najbliższy termin {fmt(upcoming[0][0])} ({upcoming[0][1]})" if upcoming else ""))
-    if not due:
-        return 0
-    if args.dry_run:
-        for vid in due:
-            log("---\n" + message(vid, waiting[vid], now))
-        return 0
-    hour = warsaw(now).hour
-    if hour >= QUIET_FROM or hour < QUIET_TO:
-        log(f"Cisza nocna ({QUIET_FROM}:00–{QUIET_TO}:00): {len(due)} przypomnień czeka do rana.")
-        return 0
-    if not os.environ.get("TELEGRAM_BOT_TOKEN") or not os.environ.get("TELEGRAM_CHAT_ID"):
-        log("Brak sekretów TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID, przypomnienia nie wychodzą.")
-        return 0
-    for vid in due:
-        try:
-            send(message(vid, waiting[vid], now))
-        except TelegramError as exc:
-            warn(f"Telegram ({vid}): {exc}")
-            break   # zwykle błąd tokena/czatu albo sieci: spróbujemy przy następnym przebiegu
-        sent[vid] = {"sent": now}
-        REMINDERS.write_text(json.dumps(dict(sorted(sent.items(), reverse=True)), indent=1) + "\n", encoding="utf-8")
-        log(f"Przypomnienie wysłane: {vid}")
-        time.sleep(1)
-    return 0
+    if args.build:
+        return run_build(args.build)
+    return run(args.dry_run)
 
 
 if __name__ == "__main__":
