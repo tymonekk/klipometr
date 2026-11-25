@@ -313,7 +313,7 @@
   .smhow a { color: var(--muted); }
   .payrow .pd a { color: var(--text); font-size: 14px; text-decoration: none; }
   .payrow .pa .tag { margin-left: 0; }
-  .payrow .rm { background: none; border: 0; padding: 0; color: var(--muted); font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
+  .tag.rmtag { cursor: pointer; text-decoration: underline; }
   .empty { color: var(--muted); text-align: center; padding: 28px 12px; border: 1px dashed var(--line); border-radius: 10px; }
   .more { display: block; margin: 12px auto 0; background: var(--tile); border: 1px solid var(--line); padding: 9px 16px; border-radius: 8px; cursor: pointer; }
   .more[hidden] { display: none; }
@@ -456,14 +456,14 @@
   <section class="pay" id="sm">
     <h2>Wysyłka do StoreMedia</h2>
     <p class="smhow">Wklej link do klipu (może być skrócony, skopiowany z telefonu). Bot odczyta z TikToka godzinę publikacji,
-      a po 6 dniach przypomni na Telegramie, żeby wysłać klip do <a href="https://rushviral.com/tworca/wspolprace" target="_blank" rel="noopener">StoreMedia</a>.</p>
+      a po 6 dniach przypomni na Telegramie, żeby wysłać klip do <a href="https://rushviral.com/tworca/wspolprace" target="_blank" rel="noopener">StoreMedia</a>.
+      Dodane klipy są niżej w zakładce „StoreMedia” przy klipach.</p>
     <form class="payform" id="smForm" novalidate>
       <label>Link do klipu <input type="url" id="smLink" placeholder="https://vm.tiktok.com/…" autocomplete="off" required></label>
       <div class="err" id="smErr"></div>
       <div class="acts"><button class="btn2 gold" type="submit" id="smAdd">Dodaj klip</button></div>
       <div class="how" id="smOk" hidden></div>
     </form>
-    <div class="paylist" id="smList"></div>
   </section>
 
   </div>
@@ -839,7 +839,7 @@
   function clipRow(v) {
     const a = document.createElement("a");
     a.className = "clip";
-    a.href = "https://www.tiktok.com/@369_shoter/video/" + v.id;
+    a.href = v.href || "https://www.tiktok.com/@369_shoter/video/" + v.id;
     a.target = "_blank";
     a.rel = "noopener";
     if (v.banner === true) a.style.setProperty("--rc", "var(--r" + rarity(v.views) + ")");
@@ -864,8 +864,20 @@
     d.textContent = fmtDate(v.t);
     const tag = (text, cls) => { const s = document.createElement("span"); s.className = "tag" + (cls ? " " + cls : ""); s.textContent = text; d.appendChild(s); };
     if (v.manual) tag("zaznaczony ręcznie", "man");
-    const sm = state.sm.find(x => x.id === v.id);
-    if (sm) tag(sm.sent ? "StoreMedia: przypomniano" : "StoreMedia " + fmtWaw(smPub(sm).t + SM_DAYS * 86400), sm.sent ? "ok" : "");
+    const sm = v.smx || state.sm.find(x => x.id === v.id);
+    if (sm) {
+      tag(...smStatus(sm));
+      if (sm.id) { const p = smPub(sm); d.title = "Opublikowany " + (p.exact ? "" : "ok. ") + fmtWaw(p.t) + ", przypomnienie " + fmtWaw(p.t + SM_DAYS * 86400); }
+      const token = v.smx && !sm.sent && smGet("smTokens", {})[sm.key];
+      if (token) {
+        const b = document.createElement("span");
+        b.className = "tag rmtag";
+        b.setAttribute("role", "button");
+        b.textContent = "usuń";
+        b.onclick = (e) => { e.preventDefault(); e.stopPropagation(); smRemove(sm.key, token); };
+        d.appendChild(b);
+      }
+    }
     if (v.banner === null) tag(v.reason === "18+" ? "18+, wymaga logowania" : v.reason === "ukryty" ? "ukryty przez TikToka" : v.error ? "nie udało się pobrać" : "czeka na bota", "warn");
     mid.append(t, d);
     if (v.banner === true && v.views < MIN_VIEWS) {
@@ -947,7 +959,6 @@
 
     if (loaded) renderChart();
     renderPayouts();
-    renderSm();
 
     // lista
     const hidden = vids.filter(v => v.banner === null);
@@ -956,10 +967,14 @@
       { id: "none", label: "Bez baneru (" + vids.filter(v => v.banner === false).length + ")", items: vids.filter(v => v.banner === false) },
       { id: "hidden", label: "Nie do sprawdzenia (" + hidden.length + ")", items: hidden },
     ];
+    // klipy dodane do wysyłki do StoreMedia: niezależnie od okresu, najbliższe przypomnienie u góry
+    const smTab = smClips();
+    if (smTab.length) tabs.push({ id: "sm", label: "StoreMedia (" + smTab.length + ")", items: smTab, keepOrder: true });
     if (!tabs.some(t => t.id === tab)) tab = "banner";
     chips($("tabs"), tabs, tab, (id) => { tab = id; store.set("tab2", id); shown = PAGE; animateList = true; render(); });
     $("legend").hidden = tab !== "banner";
-    const items = tabs.find(t => t.id === tab).items.slice().sort((a, b) => (b.t || 0) - (a.t || 0));
+    const curTab = tabs.find(t => t.id === tab);
+    const items = curTab.keepOrder ? curTab.items : curTab.items.slice().sort((a, b) => (b.t || 0) - (a.t || 0));
     const list = $("list");
     list.innerHTML = "";
     if (!items.length) {
@@ -1353,60 +1368,31 @@
     return j;
   }
 
-  function renderSm() {
-    const list = $("smList");
-    list.innerHTML = "";
-    const now = Date.now() / 1000;
-    const items = smItems().map(x => { const p = x.id ? smPub(x) : null; return { ...x, pubT: p && p.t, exact: p && p.exact, due: p ? p.t + SM_DAYS * 86400 : -Infinity }; });
-    // najpierw nieodczytane linki, potem czekające (najbliższy termin u góry), na końcu już przypomniane
-    items.sort((a, b) => (!!a.sent - !!b.sent) || (a.sent ? b.sent - a.sent : a.due - b.due));
-    for (const x of items) {
-      const v = x.id && state.videos.find(v => v.id === x.id);
-      const row = document.createElement("div");
-      row.className = "payrow" + (x.pending ? " pending" : "");
-      const left = document.createElement("div");
-      left.style.minWidth = "0";
-      const d = document.createElement("div");
-      d.className = "pd pn";
-      const a = document.createElement("a");
-      a.href = x.id ? browserLink(x.id, x.account) : x.link;
-      a.target = "_blank"; a.rel = "noopener";
-      a.textContent = (v && v.title) || (x.id ? "Film " + x.id : x.link);
-      d.appendChild(a);
-      const n = document.createElement("div");
-      n.className = "pn";
-      n.textContent = x.id ? "opublikowany " + (x.exact ? "" : "ok. ") + fmtWaw(x.pubT) + " · przypomnienie " + fmtWaw(x.due)
-        : x.error ? "nie da się odczytać linku: " + x.error : "bot odczyta datę ze skróconego linku";
-      const token = smGet("smTokens", {})[x.key];
-      if (token && !x.sent) {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "rm";
-        b.textContent = "usuń";
-        b.onclick = async () => {
-          if (!confirm("Usunąć ten klip z przypomnień?")) return;
-          b.disabled = true;
-          try {
-            await smCall("/remove", { id: x.key, token });
-            store.set("smPending", JSON.stringify(smGet("smPending", []).filter(p => p.key !== x.key)));
-            store.set("smRemoved", JSON.stringify([...smGet("smRemoved", []), { key: x.key, at: Date.now() }]));
-            renderSm();
-          } catch (err) { b.disabled = false; alert(err.message); }
-        };
-        n.append(" · ", b);
-      }
-      left.append(d, n);
-      const st = document.createElement("div");
-      st.className = "pa";
-      const t = document.createElement("span");
-      const [txt, cls] = x.sent ? ["przypomniano", "ok"] : x.error ? ["zły link", "late"] : !x.id ? ["czeka na bota", ""]
-        : now < x.due ? ["za " + leftTxt(x.due - now), ""] : ["wyślij do StoreMedia", "warn"];
-      t.className = "tag" + (cls ? " " + cls : "");
-      t.textContent = txt;
-      st.appendChild(t);
-      row.append(left, st);
-      list.appendChild(row);
-    }
+  // klipy StoreMedia jako wiersze listy klipów (z okładką i wyświetleniami, gdy bot zna film)
+  function smClips() {
+    return smItems().map(x => {
+      const p = x.id ? smPub(x) : null;
+      const known = x.id && state.videos.find(v => v.id === x.id);
+      const v = known ? { ...known } : { id: x.id || x.key, title: x.id ? "" : x.link, t: p ? p.t : 0, views: 0, banner: false, href: x.id ? null : x.link };
+      v.smx = { ...x, due: p ? p.t + SM_DAYS * 86400 : -Infinity };
+      return v;
+    }).sort((a, b) => (!!a.smx.sent - !!b.smx.sent) || (a.smx.sent ? b.smx.sent - a.smx.sent : a.smx.due - b.smx.due));
+  }
+  function smStatus(x) {
+    if (x.sent) return ["StoreMedia: przypomniano", "ok"];
+    if (x.error) return ["StoreMedia: zły link", "late"];
+    if (!x.id) return ["StoreMedia: bot sprawdza link", ""];
+    const due = smPub(x).t + SM_DAYS * 86400, left = due - Date.now() / 1000;
+    return left > 0 ? ["StoreMedia " + fmtWaw(due) + " · za " + leftTxt(left), ""] : ["wyślij do StoreMedia", "warn"];
+  }
+  async function smRemove(key, token) {
+    if (!confirm("Usunąć ten klip z przypomnień StoreMedia?")) return;
+    try {
+      await smCall("/remove", { id: key, token });
+      store.set("smPending", JSON.stringify(smGet("smPending", []).filter(p => p.key !== key)));
+      store.set("smRemoved", JSON.stringify([...smGet("smRemoved", []), { key, at: Date.now() }]));
+      render();
+    } catch (err) { alert(err.message); }
   }
 
   $("smForm").onsubmit = async (e) => {
@@ -1434,7 +1420,8 @@
         : "Dodano. Godzinę publikacji bot sprawdzi na TikToku w ciągu kilkunastu minut.";
       $("smOk").hidden = false;
       $("smForm").reset();
-      renderSm();
+      tab = "sm"; store.set("tab2", tab); shown = PAGE; animateList = true;
+      render();
     } catch (err) {
       $("smErr").textContent = err.message === "Failed to fetch" ? "Brak połączenia z serwerem dodawania. Spróbuj za chwilę." : err.message;
     } finally {
