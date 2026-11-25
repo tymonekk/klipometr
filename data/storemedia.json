@@ -1,0 +1,6 @@
+{
+  "_info": "Wysyłka klipów do StoreMedia (https://rushviral.com/tworca/wspolprace). Po wysłaniu dopisz numer filmu do 'wyslane'. W 'dodatkowe' dopisz filmy z banerem, których bot nie widzi (ukryte, 18+). 'od': starsze klipy są pomijane. Numer filmu to liczba z linku do filmu na TikToku.",
+  "od": "2026-11-19",
+  "wyslane": [],
+  "dodatkowe": []
+}

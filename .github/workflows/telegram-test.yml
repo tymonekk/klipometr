@@ -1,0 +1,29 @@
+name: Test Telegrama
+
+# Ręcznie: Actions → Test Telegrama → Run workflow. Wysyła wiadomość testową na czat z sekretu
+# TELEGRAM_CHAT_ID, a po podaniu numeru filmu także podgląd przypomnienia o StoreMedia.
+on:
+  workflow_dispatch:
+    inputs:
+      id:
+        description: "Numer filmu do podglądu przypomnienia (opcjonalnie)"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Wyślij wiadomość testową
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          VIDEO_ID: ${{ inputs.id }}
+        run: python scripts/remind.py --test --id "$VIDEO_ID"

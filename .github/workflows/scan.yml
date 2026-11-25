@@ -64,6 +64,15 @@ jobs:
         if: github.event_name != 'push'
         run: python scripts/scan.py ${{ inputs.rescan && '--rescan --budget 2100' || '' }}
 
+      - name: Przypomnienia StoreMedia (Telegram)
+        # osobny krok: błąd Telegrama nigdy nie zatrzymuje bota
+        if: github.event_name != 'push'
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/remind.py
+
       - name: Zapisz wyniki
         id: save
         if: github.event_name != 'push'

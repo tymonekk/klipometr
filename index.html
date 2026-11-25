@@ -307,6 +307,8 @@
   .tag { display: inline-block; font-size: 12px; padding: 0 6px; border-radius: 4px; margin-left: 6px; background: rgba(255,255,255,.06); color: var(--muted); }
   .tag.man { background: rgba(136,71,255,.18); color: #c3a8ff; }
   .tag.warn { background: rgba(228,174,57,.14); color: var(--warn); }
+  .tag.ok { background: rgba(95,211,141,.14); color: var(--ok); }
+  .tag.late { background: rgba(255,92,92,.16); color: #ff8a8a; }
   .empty { color: var(--muted); text-align: center; padding: 28px 12px; border: 1px dashed var(--line); border-radius: 10px; }
   .more { display: block; margin: 12px auto 0; background: var(--tile); border: 1px solid var(--line); padding: 9px 16px; border-radius: 8px; cursor: pointer; }
   .more[hidden] { display: none; }
@@ -480,6 +482,9 @@
     TikTok podaje duże liczby z dokładnością do 100. Filmy ukryte przez TikToka (widoczne tylko dla Ciebie)
     i oznaczone jako 18+ nie dają się sprawdzić automatycznie.
     <br>Bot się pomylił? Dopisz numer filmu w <a href="https://github.com/tymonekk/klipometr/blob/main/data/overrides.json">data/overrides.json</a>.
+    <br>Klip z banerem trzeba wysłać do <a href="https://rushviral.com/tworca/wspolprace">StoreMedia</a> do 6 dni od wrzucenia (po terminie przyjdzie przypomnienie na Telegramie).
+    Po wysłaniu dopisz numer filmu do „wyslane” w <a href="https://github.com/tymonekk/klipometr/edit/main/data/storemedia.json">data/storemedia.json</a>,
+    a ukryty albo 18+ film z banerem do „dodatkowe”.
   </footer>
 </div>
 
@@ -510,6 +515,10 @@
   const fmtUsd = (n) => fmt2(n) + " $";
   const fmtPln = (n) => fmt2(n) + " zł";
   const fmtInt = (n) => Math.round(n).toLocaleString("pl-PL");
+  // StoreMedia: klip z banerem trzeba tam wysłać do 6 dni od wrzucenia (czas wrzucenia = numer filmu >> 32)
+  const SM_DAYS = 6;
+  const uploadedAt = (id) => /^\d+$/.test(String(id)) ? Number(BigInt(id) >> 32n) : 0;
+  const fmtWaw = (t) => new Date(t * 1000).toLocaleString("pl-PL", { timeZone: "Europe/Warsaw", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" });
   const fmtDate = (t) => t ? new Date(t * 1000).toLocaleDateString("pl-PL", { day: "numeric", month: "short" }) : "";
   const fmtDay = (d) => d.toLocaleDateString("pl-PL", { day: "numeric", month: "numeric" });
   const ago = (ms) => {
@@ -831,7 +840,16 @@
     d.className = "d";
     d.textContent = fmtDate(v.t);
     const tag = (text, cls) => { const s = document.createElement("span"); s.className = "tag" + (cls ? " " + cls : ""); s.textContent = text; d.appendChild(s); };
-    if (v.manual) tag("zaznaczony ręcznie", "man");
+    if (v.manual) tag(v.extra ? "dodany ręcznie" : "zaznaczony ręcznie", "man");
+    if (v.sm) {
+      const due = v.sm.due;
+      if (v.sm.sent) tag("wysłano do StoreMedia", "ok");
+      else if (Date.now() / 1000 < due) {
+        const left = due - Date.now() / 1000;
+        tag("StoreMedia do " + fmtWaw(due) + " · za " + (left >= 86400 ? Math.floor(left / 86400) + " d" : Math.max(1, Math.floor(left / 3600)) + " h"));
+      } else tag("po terminie, wyślij do StoreMedia", "late");
+      d.title = "Wrzucony " + fmtWaw(v.sm.up) + ", termin StoreMedia " + fmtWaw(due);
+    }
     if (v.banner === null) tag(v.reason === "18+" ? "18+, wymaga logowania" : v.reason === "ukryty" ? "ukryty przez TikToka" : v.error ? "nie udało się pobrać" : "czeka na bota", "warn");
     mid.append(t, d);
     if (v.banner === true && v.views < MIN_VIEWS) {
@@ -921,6 +939,9 @@
       { id: "none", label: "Bez baneru (" + vids.filter(v => v.banner === false).length + ")", items: vids.filter(v => v.banner === false) },
       { id: "hidden", label: "Nie do sprawdzenia (" + hidden.length + ")", items: hidden },
     ];
+    // do wysłania do StoreMedia: niezależnie od wybranego okresu
+    const toSend = state.videos.filter(v => v.banner === true && v.sm && !v.sm.sent);
+    if (toSend.length) tabs.push({ id: "sm", label: "Do wysłania do StoreMedia (" + toSend.length + ")", items: toSend });
     if (!tabs.some(t => t.id === tab)) tab = "banner";
     chips($("tabs"), tabs, tab, (id) => { tab = id; store.set("tab2", id); shown = PAGE; animateList = true; render(); });
     $("legend").hidden = tab !== "banner";
@@ -1303,13 +1324,14 @@
     loading = true;
     $("status").classList.add("loading");
     const errors = [];
-    const [live, banners, overrides, fresh, nbp, payouts] = await Promise.all([
+    const [live, banners, overrides, fresh, nbp, payouts, sm] = await Promise.all([
       getText(SOURCE).then(t => JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1))).catch(() => { errors.push("listy filmów ze strony"); return null; }),
       getText("data/banners.json").then(JSON.parse).catch(() => { errors.push("wyników bota"); return null; }),
       getText("data/overrides.json").then(JSON.parse).catch(() => ({})),
       getText("data/views.json").then(JSON.parse).catch(() => { errors.push("wyświetleń z bota"); return { at: 0, v: {}, h: {} }; }),
       fetch("https://api.nbp.pl/api/exchangerates/rates/a/usd/?format=json").then(r => r.json()).catch(() => { errors.push("kursu NBP"); return null; }),
       getText("data/payouts.json").then(JSON.parse).catch(() => null),
+      getText("data/storemedia.json").then(JSON.parse).catch(() => ({})),
     ]);
 
     const map = new Map();
@@ -1330,6 +1352,21 @@
     }
     for (const id of (overrides.baner || [])) { const v = map.get(String(id)); if (v) { v.banner = true; v.manual = true; } }
     for (const id of (overrides.bez_baneru || [])) { const v = map.get(String(id)); if (v) { v.banner = false; v.manual = true; } }
+    // filmy dopisane ręcznie w data/storemedia.json (ukryte, 18+), których bot nie widzi
+    for (const raw of (sm.dodatkowe || [])) {
+      const id = String(raw);
+      if (!/^\d+$/.test(id)) continue;
+      const v = map.get(id) || { id, title: "", t: uploadedAt(id), views: (fresh.v || {})[id] || 0, error: null, reason: null, extra: true };
+      if (!(overrides.bez_baneru || []).map(String).includes(id)) { v.banner = true; v.manual = true; }
+      map.set(id, v);
+    }
+    // termin i status wysyłki do StoreMedia (klipy wrzucone od daty "od")
+    const smSent = new Set((sm.wyslane || []).map(String));
+    const smFrom = /^\d{4}-\d{2}-\d{2}$/.test(sm.od || "") ? new Date(sm.od + "T00:00:00").getTime() / 1000 : Infinity;
+    for (const v of map.values()) {
+      const up = uploadedAt(v.id);
+      v.sm = v.banner === true && up && up >= smFrom ? { up, due: up + SM_DAYS * 86400, sent: smSent.has(v.id) } : null;
+    }
 
     if (map.size || !state.videos.length) {
       state = {
