@@ -1320,7 +1320,7 @@
   // ---------- StoreMedia: klipy dodane ręcznie, przypomnienie na Telegramie 6 dni po wrzuceniu ----------
   // Strona wysyła link do Workera Cloudflare (worker/), który zapisuje go w repo jako data/storemedia/<numer>.json;
   // bot (scripts/remind.py) wysyła przypomnienie. Lista to data/storemedia.json składany przy publikacji.
-  const SM_API = "";   // adres Workera po wdrożeniu, np. https://klipometr-storemedia.<konto>.workers.dev
+  const SM_API = "https://klipometr-storemedia.tymonekk.workers.dev";   // Worker Cloudflare (worker/)
   const TIKTOK_RE = /^https?:\/\/([a-z0-9-]+\.)*tiktok\.com(\/|$)/i;
   const smParse = (link) => { const m = /\/(?:video|photo|v)\/(\d{15,22})/.exec(link || ""); return m && TIKTOK_RE.test(link) ? m[1] : null; };
   const browserLink = (id, acc) => "https://www.tiktok.com/@" + (acc || "369_shoter") + "/video/" + id;
