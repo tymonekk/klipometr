@@ -1,10 +1,23 @@
 {
+ "7712945483571891489": {
+  "banner": true,
+  "at": 1795810383,
+  "frames": 29,
+  "sec": 15,
+  "hits": 1,
+  "color": "zloty",
+  "score": 0.89,
+  "title": "369 jutro kończy 26 lat. Ile wy macie lat? (współpraca)",
+  "views": 477,
+  "t": 1795810065,
+  "t_src": "page"
+ },
  "7712598320635579687": {
   "banner": false,
   "at": 1795729423,
   "frames": 73,
   "title": "Czy streamerzy faktycznie zarabiają tak dużo pieniędzy?",
-  "views": 9102,
+  "views": 9159,
   "t": 1795729239
  },
  "7712585146544704801": {
@@ -20,7 +33,7 @@
   "at": 1795800161,
   "frames": 11,
   "title": "369 nigdy nie wróci na pro scenę. Szkoda? <wspolpraca>",
-  "views": 10800,
+  "views": 11100,
   "t": 1795799720
  },
  "7712506727547161889": {
@@ -32,7 +45,7 @@
   "color": "zloty",
   "score": 0.945,
   "title": "369 chce wywalić scamy z TikToka [wspolpraca]",
-  "views": 2379,
+  "views": 2388,
   "t": 1795792503,
   "t_src": "page"
  },
@@ -45,7 +58,7 @@
   "color": "zloty",
   "score": 0.908,
   "title": "Pomagaj dzieciom, psa weź ze schroniska (współpraca)",
-  "views": 1567,
+  "views": 1570,
   "t": 1795785284,
   "t_src": "page"
  },
@@ -58,7 +71,7 @@
   "color": "niebieski",
   "score": 0.931,
   "title": "369 mówi, kiedy hazard jest OK <wspolpraca>",
-  "views": 1018,
+  "views": 1025,
   "t": 1795778066,
   "t_src": "page"
  },
@@ -71,7 +84,7 @@
   "color": "niebieski",
   "score": 0.926,
   "title": "Najlepszy pedicure gamingowy [wspolpraca]",
-  "views": 6178,
+  "views": 6249,
   "t": 1795770005,
   "t_src": "page"
  },
@@ -84,7 +97,7 @@
   "color": "niebieski",
   "score": 0.964,
   "title": "369 nie ogoli się na łyso nawet za 20 koła. A wy za ile? (współpraca)",
-  "views": 1593,
+  "views": 1598,
   "t": 1795761039,
   "t_src": "page"
  },
@@ -97,7 +110,7 @@
   "color": "niebieski",
   "score": 0.929,
   "title": "Dlaczego 369 wyłączył donate? <wspolpraca>",
-  "views": 948,
+  "views": 950,
   "t": 1795752014,
   "t_src": "page"
  },
@@ -110,7 +123,7 @@
   "color": "zloty",
   "score": 0.865,
   "title": "CS cały weekend lepszy niż klub. Zgadzacie się? [wspolpraca]",
-  "views": 4153,
+  "views": 4165,
   "t": 1795744843,
   "t_src": "page"
  },
@@ -239,7 +252,7 @@
   "color": "niebieski",
   "score": 0.997,
   "title": "Dlaczego Jakub wyzywa 369?",
-  "views": 4918,
+  "views": 4919,
   "t": 1795555517,
   "t_src": "page"
  },
@@ -532,7 +545,7 @@
   "hits": 4,
   "color": "niebieski",
   "title": "369 o nowym Cobblestonie",
-  "views": 3139,
+  "views": 3140,
   "t": 1795078800,
   "t_src": "page"
  },
@@ -612,7 +625,7 @@
   "hits": 4,
   "color": "niebieski",
   "title": "Izak zdradził Polskę i żonę",
-  "views": 1770,
+  "views": 1771,
   "t": 1794960000,
   "t_src": "page"
  },
@@ -723,7 +736,7 @@
   "hits": 4,
   "color": "niebieski",
   "title": "369 ma ferie od Mamm0na",
-  "views": 8891,
+  "views": 8892,
   "t": 1794886106,
   "t_src": "page"
  },
@@ -735,7 +748,7 @@
   "hits": 3,
   "color": "niebieski",
   "title": "Morawiecki dodał TikToka z Izakiem",
-  "views": 194300,
+  "views": 194400,
   "t": 1794878854,
   "t_src": "page"
  },
